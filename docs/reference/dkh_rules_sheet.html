@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Don't Kill Hitler — Mission Briefing</title>
+<!-- Reference build of the one-page rules handout (March 2026). Rules text here is what students saw;
+     02_CARD_GAME_SPEC.md is canonical where the two differ. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@page { size: letter portrait; margin: 0.55in; }
+body { font-family: 'Libre Baskerville', serif; background: #e8e4dc; padding: 0.55in; display: flex; flex-direction: column; align-items: center; }
+@media print { body { background: white; padding: 0; } .no-print { display: none !important; } }
+.controls { text-align: center; padding: 20px; margin-bottom: 30px; }
+.controls button { font-family: 'Oswald', sans-serif; font-size: 13pt; letter-spacing: 2px; text-transform: uppercase; background: #1a2744; color: #faf7f0; border: none; padding: 10px 28px; cursor: pointer; }
+.sheet-wrap { width: 7.6in; min-height: 10.1in; }
+.sheet { background: #faf7f0; border: 1px solid #c8b89a; box-shadow: inset 0 0 0 10px #faf7f0, inset 0 0 0 12px #1a2744; position: relative; overflow: hidden; width: 100%; min-height: 10.1in; display: flex; flex-direction: column; }
+.sheet::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: #8b0000; z-index: 10; }
+.sheet-inner { position: absolute; top: 18px; left: 18px; right: 18px; bottom: 18px; display: flex; flex-direction: column; z-index: 1; padding: 6px 10px; }
+.sheet-header { text-align: center; padding-bottom: 10px; border-bottom: 2.5px solid #1a2744; }
+.header-org { font-family: 'Oswald', sans-serif; font-weight: 300; font-size: 8pt; color: #1a2744; letter-spacing: 4px; text-transform: uppercase; }
+.header-division { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 7.5pt; color: #8b0000; margin-top: 2px; }
+.header-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 26pt; color: #1a2744; display: block; margin-top: 6px; line-height: 1.1; }
+.header-subtitle { font-family: 'Oswald', sans-serif; font-weight: 300; font-size: 9pt; color: #8b7355; letter-spacing: 3px; text-transform: uppercase; margin-top: 5px; }
+.sheet-body { flex: 1; display: flex; flex-direction: column; padding: 18px 0 10px; }
+.section-label { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 7.5pt; color: #1a2744; letter-spacing: 3px; text-transform: uppercase; border-bottom: 1px solid #c8b89a; padding-bottom: 4px; margin-bottom: 10px; }
+.section-text { font-size: 9.5pt; color: #1a1a0a; line-height: 1.7; }
+.section-text p + p { margin-top: 8px; }
+.block { margin-bottom: 20px; }
+.block-criteria { background: #f0ebe0; border: 0.75px solid #c8b89a; border-left: 3px solid #1a2744; padding: 14px 16px 16px; margin-bottom: 22px; }
+.criteria-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.criteria-list li { display: flex; gap: 12px; }
+.criteria-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16pt; color: #1a2744; line-height: 1; flex-shrink: 0; }
+.criteria-text { font-size: 9.5pt; line-height: 1.6; }
+.criteria-text strong { font-style: italic; }
+.rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+.rule-head { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 7pt; color: #1a2744; letter-spacing: 2px; text-transform: uppercase; border-bottom: 0.5px solid #c8b89a; padding-bottom: 3px; margin-bottom: 5px; }
+.rule-body { font-size: 8.5pt; line-height: 1.65; }
+.sheet-footer { text-align: center; padding-top: 12px; border-top: 2.5px solid #1a2744; margin-top: auto; }
+.footer-main { font-family: 'Playfair Display', serif; font-style: italic; font-size: 10pt; color: #1a2744; display: block; margin-bottom: 4px; }
+.footer-sub { font-family: 'Oswald', sans-serif; font-weight: 300; font-size: 7pt; color: #8b7355; letter-spacing: 2.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="no-print controls"><button onclick="window.print()">Print / Save PDF</button></div>
+<div class="sheet-wrap"><div class="sheet"><div class="sheet-inner">
+  <div class="sheet-header">
+    <div class="header-org">Temporal Intelligence Directorate · Operational Division</div>
+    <div class="header-division">Classification: Active Mission — All Personnel</div>
+    <span class="header-title">Don't Kill Hitler</span>
+    <div class="header-subtitle">Mission Briefing &amp; Field Protocols</div>
+  </div>
+  <div class="sheet-body">
+    <div class="block">
+      <div class="section-label">Mission Briefing</div>
+      <div class="section-text">
+        <p>You and your fellow agents have each built a one-use, one-way time machine. There is one slot. Everyone has a plan to stop Hitler — to kill him, redirect him, or dismantle the conditions that produced him. Only one plan gets funded. Your job is to convince the room that yours is it.</p>
+        <p>Each round, draw your card and take two minutes to argue your mission: <em>why it works</em>, and <em>what the resulting timeline looks like</em>. No notes. No preparation. The machine is already built. After your pitch, any other agent may ask you one question. You must answer it. Then the committee votes.</p>
+        <p>After four qualifying rounds, the highest scorer from each round advances to the final, plus the top-scoring non-qualifier as a wildcard. Five agents make the final. One plan wins.</p>
+        <p style="margin-top:10px;font-size:8.5pt;color:#555;font-style:italic;">Draw mechanic — Groups of 4–5: draw 2, play 1, discard the other face-down. Groups of 6–7: draw 2, then play in turn around the circle — each player's discard is shuffled back into the deck before the next player draws, keeping the pool viable.</p>
+      </div>
+    </div>
+    <div class="block-criteria">
+      <div class="section-label">Voting Criteria</div>
+      <p style="font-size:8.5pt;color:#555;margin-bottom:12px;font-style:italic;">Rank the missions you did not argue. Award 3 points to your top pick, 2 to your second, 1 to your third. No self-voting. Judge each mission on both criteria below — a strong plan on only one will not survive cross-examination.</p>
+      <ul class="criteria-list">
+        <li><span class="criteria-num">I</span><span class="criteria-text"><strong>Which plan successfully stops Hitler without producing an equal or greater catastrophe?</strong> Consider whether the intervention works, whether the resulting timeline is genuinely better, and whether you have accounted for what fills the vacuum.</span></li>
+        <li><span class="criteria-num">II</span><span class="criteria-text"><strong>Which plan requires the least moral compromise from the agent carrying it out?</strong> You are the one who goes. You do not come back. What does the mission ask of you — and can you defend that in front of this committee?</span></li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="section-label">Field Protocols</div>
+      <div class="rules-grid">
+        <div><div class="rule-head">The Pitch</div><div class="rule-body">2 minutes. Address why the mission works and what the resulting timeline looks like. No notes. Improvised argument only.</div></div>
+        <div><div class="rule-head">Cross-Examination</div><div class="rule-body">After each pitch, any other agent may ask the presenter one question. The presenter must answer. Questions may be hostile.</div></div>
+        <div><div class="rule-head">Qualifying Rounds</div><div class="rule-body">Play four rounds. Highest scorer in each round advances automatically. Highest-scoring non-qualifier advances as wildcard. Five agents reach the final.</div></div>
+        <div><div class="rule-head">The Final</div><div class="rule-body">Each finalist argues their strongest mission. All players rank the other finalists' plans (3/2/1). No self-voting. Highest total wins.</div></div>
+        <div><div class="rule-head">The Pass-Off</div><div class="rule-body">If a finalist holds two qualifying cards, they choose one to argue and may pass the other to any player. If the passed card wins, the original holder scores half the winner's final points.</div></div>
+        <div><div class="rule-head">Ties</div><div class="rule-body">Both players preliminarily advance. Final cut favors the pairing that gives the most agents a card in the final. Last resort: coin flip.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <span class="footer-main">The machine is one way. Once you argue it, it's argued. Leave it on the table when you walk out.</span>
+    <div class="footer-sub">Temporal Intelligence Directorate · No Responsibility Accepted for Paradoxes, Alternative Timelines, or Personal Consequences</div>
+  </div>
+</div></div></div>
+</body>
+</html>

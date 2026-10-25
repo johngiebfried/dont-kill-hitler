@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Don't Kill Hitler</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* Layout: a night reading room. One essay column on dossier-navy ground; the archive's
+   paper documents break out of the column, and the two games open over the page. */
+:root {
+  --ink: #131a29;        /* page ground: the dossier navy, darkened for long reading */
+  --ink-raised: #1b2436; /* panels on the ground */
+  --rule: #34405a;       /* hairlines on ink */
+  --bone: #e9e3d4;       /* text on ink */
+  --dust: #a3a9b6;       /* secondary text on ink */
+  --paper: #f3eee2;      /* archive documents */
+  --paper-shade: #e7dfcc;
+  --paper-ink: #1e1b15;  /* text on paper */
+  --paper-muted: #6b5f4b;
+  --stamp: #d0503f;      /* archive stamp red, on ink */
+  --stamp-paper: #8b0000;/* the deck's red, on paper */
+  --brass: #c8b48a;      /* labels, small rules */
+  --phosphor: #5cf08f;   /* only the platformer's door */
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --type: "Courier Prime", "Courier New", Courier, monospace;
+  --col: 40rem;
+  --wide: 72rem;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--serif);
+  font-size: clamp(1.06rem, 0.98rem + 0.35vw, 1.22rem);
+  line-height: 1.62;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration-color: var(--stamp); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+h1, h2, h3 { font-weight: 500; text-wrap: balance; line-height: 1.12; margin: 0; }
+p { margin: 0; }
+em { font-style: italic; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.col { max-width: var(--col); margin-inline: auto; }
+.widecol { max-width: var(--wide); margin-inline: auto; }
+.flow > * + * { margin-top: 1.05em; }
+.label {
+  font-family: var(--type); font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--brass);
+}
+.progress { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; height: 2px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: var(--stamp); z-index: 30; }
+
+/* ── HERO ─────────────────────────────────────────── */
+.hero { padding-block: clamp(3.5rem, 9vw, 7.5rem) clamp(2.5rem, 6vw, 4.5rem); border-bottom: 1px solid var(--rule); position: relative; overflow: hidden; }
+.hero-inner { max-width: var(--wide); margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: end; }
+.hero h1 {
+  font-size: clamp(3.1rem, 1.6rem + 7.4vw, 8.4rem); font-weight: 600; letter-spacing: -0.025em; line-height: 0.92;
+  font-variation-settings: "opsz" 72; margin-top: 1.2rem;
+}
+.hero h1 .strike { position: relative; white-space: nowrap; }
+.hero .ask { font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2.3rem); line-height: 1.22; font-style: italic; font-weight: 400; color: #fff; max-width: 26ch; margin-top: 1.7rem; font-variation-settings: "opsz" 48; text-wrap: balance; }
+.hero .dek { font-size: clamp(1.08rem, 1rem + 0.4vw, 1.3rem); line-height: 1.5; color: var(--dust); max-width: 34rem; margin-top: 1.1rem; font-variation-settings: "opsz" 24; }
+.hero .byline { margin-top: 1.5rem; font-family: var(--type); font-size: 0.86rem; color: var(--dust); }
+.hero .byline strong { color: var(--bone); font-weight: 700; }
+.toc { border-top: 1px solid var(--rule); padding-top: 1rem; }
+.toc ol { list-style: none; margin: 0.8rem 0 0; padding: 0; display: grid; gap: 0.35rem; counter-reset: t; }
+.toc li { counter-increment: t; display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); align-items: baseline; }
+.toc li::before { content: counter(t, decimal-leading-zero); font-family: var(--type); font-size: 0.78rem; color: var(--stamp); }
+.toc a { text-decoration: none; font-size: 1.04rem; }
+.toc a:hover { text-decoration: underline; text-decoration-color: var(--stamp); }
+.toc .meta { margin-top: 1.1rem; font-family: var(--type); font-size: 0.78rem; color: var(--dust); line-height: 1.55; }
+
+/* ── SECTIONS ─────────────────────────────────────── */
+section.chapter { padding-block: clamp(3.5rem, 8vw, 6.5rem); border-bottom: 1px solid var(--rule); }
+.chapter-head { max-width: var(--col); margin: 0 auto clamp(1.8rem, 4vw, 2.8rem); }
+.chapter-head .label { display: flex; gap: 0.9rem; align-items: center; }
+.chapter-head .label::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.chapter-head h2 { font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.5rem); font-variation-settings: "opsz" 60; letter-spacing: -0.015em; margin-top: 0.9rem; }
+.lede { font-size: 1.12em; color: var(--bone); }
+.muted { color: var(--dust); }
+blockquote { margin: 0; }
+.pull {
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem); line-height: 1.3; font-style: italic; font-variation-settings: "opsz" 40;
+  border-left: 2px solid var(--stamp); padding: 0.1rem 0 0.1rem 1.2rem;
+}
+.pull cite { display: block; margin-top: 0.6rem; font-family: var(--type); font-style: normal; font-size: 0.78rem; letter-spacing: 0.06em; color: var(--dust); }
+
+/* ── 01 · THE SAFEST BET ──────────────────────────── */
+.bet { font-size: clamp(1.45rem, 1.15rem + 1.2vw, 2.1rem); line-height: 1.25; font-style: italic; font-variation-settings: "opsz" 48; color: #fff; border-left: 2px solid var(--stamp); padding-left: 1.1rem; margin-block: 1.6em !important; }
+
+/* ── 02 · SOURCES ─────────────────────────────────── */
+.srclabel { max-width: var(--wide); margin: clamp(3.5rem, 8vw, 5.5rem) auto 1.3rem; display: flex; gap: 0.9rem; align-items: center; color: var(--stamp); }
+.srclabel::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.reads-ink { max-width: var(--wide); margin: 1.4rem auto 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.reads-ink div { background: var(--ink-raised); padding: 0.9rem 1.1rem 1rem; }
+.reads-ink .k { display: block; font-family: var(--type); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); margin-bottom: 0.3rem; }
+.reads-ink .became .k { color: var(--stamp); }
+.reads-ink p { font-size: 0.98rem; }
+.vread { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 27rem); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+.vread .doc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 9vh); }
+.vread-comic { margin: 0; }
+.vframe { background: #fff; padding: 6px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.7); }
+.vframe img { width: 100%; }
+.vread-comic figcaption { margin-top: 0.8rem; font-family: var(--type); font-size: 0.74rem; color: var(--dust); line-height: 1.5; }
+.doc.single { max-width: 60rem; margin: 0 auto; }
+.older { max-width: 46rem; margin: clamp(3.5rem, 8vw, 5.5rem) auto 0; display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1.5rem; align-items: start; border-top: 1px solid var(--rule); padding-top: 1.8rem; }
+.older figure { margin: 0; }
+.older img { box-shadow: 0 14px 28px -14px rgba(0,0,0,.8); }
+.older figcaption { margin-top: 0.5rem; font-family: var(--type); font-size: 0.68rem; color: var(--dust); }
+.older .label { color: var(--stamp); }
+.twogames { max-width: var(--wide); margin: 1.4rem auto 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); }
+.tg { border: 1px solid var(--rule); padding: 1.3rem 1.4rem 1.4rem; display: grid; gap: 0.75rem; align-content: start; }
+.tg p { font-size: 1rem; }
+.tg.plat { background: radial-gradient(ellipse at 50% 0%, rgba(92,240,143,0.06), transparent 70%), var(--ink-raised); border-color: rgba(92,240,143,0.25); }
+.tg.plat .label { color: var(--phosphor); }
+.tg.card { background: var(--paper); color: var(--paper-ink); border-color: transparent; }
+.tg.card .label { color: var(--stamp-paper); }
+
+/* ── the xkcd strip (sticky walk) ─────────────────── */
+.strip-walk { max-width: var(--wide); margin: clamp(2rem, 5vw, 3rem) auto 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(1.5rem, 4vw, 3.5rem); }
+.strip-fig { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12vh); align-self: start; order: 2; margin: 0; }
+.strip-frame { position: relative; background: #fff; padding: 10px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.7); }
+.strip-frame img { width: 100%; }
+.strip-frame .dim { position: absolute; top: 10px; bottom: 10px; background: rgba(19,26,41,0.74); opacity: 0; transition: opacity .45s ease; pointer-events: none; }
+.strip-fig[data-step] .dim { opacity: 1; }
+.strip-fig[data-step="1"] .d1, .strip-fig[data-step="2"] .d2, .strip-fig[data-step="3"] .d3, .strip-fig[data-step="4"] .d4, .strip-fig[data-step="5"] .d5 { opacity: 0; }
+.strip-fig figcaption { margin-top: 0.8rem; font-family: var(--type); font-size: 0.74rem; color: var(--dust); line-height: 1.5; }
+.steps { order: 1; }
+.step { min-height: 52vh; display: flex; align-items: center; }
+.step p { font-size: 1.12em; border-left: 1px solid var(--rule); padding-left: 1.1rem; transition: border-color .3s, color .3s; color: var(--dust); }
+.step.on p { border-left-color: var(--stamp); color: var(--bone); }
+.step:first-child { min-height: 30vh; align-items: flex-start; }
+.step:last-child { min-height: 40vh; }
+
+/* ── paper slips ──────────────────────────────────── */
+.doc {
+  background: var(--paper); color: var(--paper-ink); position: relative;
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 28px 50px -28px rgba(0,0,0,.85), 0 2px 6px rgba(0,0,0,.25);
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 15rem); gap: 0; transform: rotate(var(--tilt, 0deg));
+}
+.doc.noimg { grid-template-columns: minmax(0, 1fr); }
+.doc .slip { padding: 1.5rem 1.6rem 1.4rem; display: flex; flex-direction: column; gap: 0.85rem; min-width: 0; }
+.doc .cat { font-family: var(--type); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-muted); display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #cfc3a8; padding-bottom: 0.6rem; }
+.doc h3 { font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.85rem); font-weight: 600; font-variation-settings: "opsz" 48; color: var(--paper-ink); }
+.doc .src { font-family: var(--type); font-size: 0.8rem; color: var(--paper-muted); margin-top: -0.4rem; }
+.doc p { font-size: 1rem; line-height: 1.58; }
+.doc blockquote { font-style: italic; font-size: 1.12rem; line-height: 1.45; border-left: 2px solid var(--stamp-paper); padding-left: 0.9rem; color: #2b241a; }
+.doc .reads { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1px; background: #cfc3a8; border-top: 1px solid #cfc3a8; margin-top: 0.3rem; }
+.doc .reads div { background: var(--paper); padding: 0.75rem 0.9rem 0.2rem 0; }
+.doc .reads div + div { padding-left: 0.9rem; }
+.doc .reads .k { font-family: var(--type); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-muted); display: block; margin-bottom: 0.25rem; }
+.doc .reads .became .k { color: var(--stamp-paper); }
+.doc .reads p { font-size: 0.95rem; }
+.doc .note { font-size: 0.88rem; color: var(--paper-muted); border-top: 1px dashed #cfc3a8; padding-top: 0.7rem; }
+.doc figure { margin: 0; background: var(--paper-shade); border-left: 1px solid #d7ccb4; padding: 1rem; display: flex; flex-direction: column; justify-content: center; gap: 0.6rem; min-width: 0; }
+.doc figure img { box-shadow: 0 6px 16px -8px rgba(0,0,0,.5); }
+.doc figcaption { font-family: var(--type); font-size: 0.68rem; color: var(--paper-muted); line-height: 1.45; }
+.forum { font-family: var(--type); font-size: 0.86rem; line-height: 1.5; background: #fbf8f1; border: 1px solid #d7ccb4; }
+.forum .bar { background: #2c3e5c; color: #f3eee2; padding: 0.45rem 0.7rem; font-size: 0.72rem; letter-spacing: 0.04em; }
+.forum .post { padding: 0.6rem 0.75rem; border-top: 1px solid #e5dcc8; }
+.forum .who { color: #2c3e5c; font-weight: 700; }
+.forum .when { color: var(--paper-muted); font-size: 0.72rem; }
+.doc a { color: var(--stamp-paper); }
+
+/* ── 03 · QUESTIONS ───────────────────────────────── */
+.qgrid { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.qc { background: var(--ink); padding: clamp(1.3rem, 3vw, 2rem); }
+.qc small { display: block; font-family: var(--type); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); }
+.qc h3 { font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.1rem); font-style: italic; font-weight: 400; font-variation-settings: "opsz" 60; margin-top: 0.5rem; }
+.qc p { margin-top: 0.8rem; font-size: 1rem; }
+.mini {
+  background: #faf7f0; color: #1a1a0a; padding: 0.8rem 0.85rem 0.9rem; position: relative;
+  box-shadow: inset 0 0 0 5px #faf7f0, inset 0 0 0 6px #1a2744; border-top: 3px solid var(--ph, #6b4c2a);
+  font-family: "Libre Baskerville", Georgia, serif; font-size: 0.82rem; line-height: 1.45;
+}
+.mini .op { font-family: var(--serif); font-weight: 700; font-size: 1.05rem; color: #1a2744; font-variation-settings: "opsz" 30; }
+.mini .var { font-style: italic; color: #6e5a3e; font-size: 0.76rem; margin: 0.1rem 0 0.5rem; }
+.mini .claim { border-left: 2px solid #8b0000; padding-left: 0.5rem; }
+.maptable { width: 100%; border-collapse: collapse; font-size: 0.96rem; min-width: 38rem; }
+.maptable th, .maptable td { text-align: left; vertical-align: top; padding: 0.75rem 0.9rem 0.75rem 0; border-top: 1px solid var(--rule); }
+.maptable thead th { font-family: var(--type); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-weight: 400; border-top: 0; }
+.maptable tbody th { font-style: italic; font-weight: 400; width: 26%; }
+.scrollx { overflow-x: auto; }
+
+/* ── 04 · TWO MACHINES ────────────────────────────── */
+.machines { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2rem); }
+.machine { padding: clamp(1.3rem, 3vw, 2rem); border: 1px solid var(--rule); display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
+.machine h3 { font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem); font-variation-settings: "opsz" 48; }
+.machine .sub { font-family: var(--type); font-size: 0.78rem; color: var(--dust); }
+.machine.crt { background: radial-gradient(ellipse at 50% 0%, rgba(92,240,143,0.06), transparent 70%), var(--ink-raised); border-color: rgba(92,240,143,0.25); }
+.machine.crt .label { color: var(--phosphor); }
+.machine.paper { background: var(--paper); color: var(--paper-ink); border-color: transparent; }
+.machine.paper .label { color: var(--stamp-paper); }
+.machine.paper .sub { color: var(--paper-muted); }
+.compare { max-width: var(--wide); margin: clamp(2rem, 5vw, 3rem) auto 0; }
+.compare table { width: 100%; border-collapse: collapse; min-width: 40rem; font-size: 0.98rem; }
+.compare th, .compare td { text-align: left; vertical-align: top; padding: 0.8rem 1rem 0.8rem 0; border-top: 1px solid var(--rule); }
+.compare thead th { font-family: var(--type); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-weight: 400; border-top: 0; }
+.compare tbody th { color: var(--dust); font-weight: 400; width: 24%; }
+.subhead { max-width: var(--col); margin: clamp(3rem, 7vw, 5rem) auto 1.4rem; }
+.subhead h3 { font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem); font-variation-settings: "opsz" 48; margin-top: 0.6rem; }
+.log { max-width: var(--col); margin: 0 auto; list-style: none; padding: 0; border-left: 1px solid var(--rule); }
+.log li { padding: 0 0 1.4rem 1.4rem; position: relative; }
+.log li::before { content: ""; position: absolute; left: -4px; top: 0.55rem; width: 7px; height: 7px; background: var(--ink); border: 1px solid var(--brass); transform: rotate(45deg); }
+.log li.rejected::before { border-color: var(--stamp); background: var(--stamp); }
+.log b { display: block; font-weight: 600; }
+.log p { color: var(--dust); font-size: 0.98rem; margin-top: 0.2rem; }
+.log .tag { font-family: var(--type); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stamp); margin-right: 0.4rem; }
+.beforeafter { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(1.2rem, 3vw, 2.2rem); align-items: start; }
+.raw { font-family: var(--type); font-size: 0.9rem; line-height: 1.6; background: #0e1320; border: 1px solid var(--rule); padding: 1.2rem 1.3rem; color: #c9cfdb; }
+.raw .label { display: block; margin-bottom: 0.8rem; color: var(--dust); }
+.raw b { color: var(--bone); }
+.final3 { display: grid; gap: 0.8rem; }
+.final3 .mini { font-size: 0.86rem; }
+.ba-caption { max-width: var(--col); margin: 1.6rem auto 0; color: var(--dust); }
+.rules-list { max-width: var(--col); margin: 1.2rem auto 0; padding: 0; list-style: none; display: grid; gap: 0.6rem; }
+.rules-list li { padding-left: 1.6rem; position: relative; }
+.rules-list li::before { content: "✕"; position: absolute; left: 0; top: 0; color: var(--stamp); font-family: var(--type); }
+.rules-list li.do::before { content: "✓"; color: var(--brass); }
+.october { max-width: var(--col); margin: clamp(2.5rem, 6vw, 4rem) auto 0; border: 1px solid var(--rule); padding: 1.4rem 1.5rem; background: var(--ink-raised); }
+.october .label { color: var(--stamp); }
+
+/* ── 05 · DOORS ───────────────────────────────────── */
+.doors { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.2rem, 3vw, 2rem); }
+.door { position: relative; display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--rule); background: var(--ink-raised); }
+.door .screen { aspect-ratio: 16 / 9; max-width: 100%; position: relative; overflow: hidden; }
+.door .body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: 0.7rem; flex: 1; }
+.door h3 { font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem); font-variation-settings: "opsz" 48; }
+.door .sub { font-family: var(--type); font-size: 0.78rem; color: var(--dust); }
+.door .facts { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-family: var(--type); font-size: 0.76rem; color: var(--dust); margin-top: 0.2rem; }
+.door .facts span::before { content: "· "; color: var(--stamp); }
+.door .actions { margin-top: auto; padding-top: 0.6rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.btn {
+  font-family: var(--type); font-weight: 700; font-size: 0.86rem; letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--bone); color: var(--ink); border: 0; padding: 0.85rem 1.3rem; cursor: pointer;
+}
+.btn:hover { background: #fff; }
+.door.a .btn { background: var(--phosphor); color: #06140b; }
+.door.a .btn:hover { background: #8bffb3; }
+.door.b .btn { background: #faf7f0; color: #1a2744; }
+.small-link { font-family: var(--type); font-size: 0.76rem; color: var(--dust); }
+.crt-screen { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #0b2414 0%, #040b06 70%); color: var(--phosphor); font-family: var(--type); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 0.5rem; text-shadow: 0 0 6px rgba(92,240,143,.65), 0 0 18px rgba(92,240,143,.25); }
+.crt-screen::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.28) 2px 3px); pointer-events: none; }
+.crt-screen::before { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 70px rgba(0,0,0,.85); pointer-events: none; z-index: 1; }
+.crt-screen .t1 { font-size: 0.66rem; letter-spacing: 0.22em; opacity: .7; }
+.crt-screen .t2 { font-size: clamp(1.3rem, 0.9rem + 1.8vw, 2.3rem); font-weight: 700; letter-spacing: 0.04em; color: #c9ffd9; }
+.crt-screen .t3 { font-size: 0.78rem; opacity: .85; }
+.crt-screen .cursor { display: inline-block; width: 0.6em; height: 1em; background: var(--phosphor); vertical-align: -0.12em; animation: blink 1.05s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.desk { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 30%, #3a2c1e, #1d150e 75%); display: grid; place-items: center; }
+.fan { position: relative; width: 28%; aspect-ratio: 5 / 7; margin-top: 4%; }
+.fan .c { position: absolute; inset: 0; background: #faf7f0; box-shadow: inset 0 0 0 5px #faf7f0, inset 0 0 0 6px #1a2744, 0 14px 26px -12px rgba(0,0,0,.7); border-top: 4px solid var(--ph); transform-origin: 50% 100%; transition: transform .5s cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; align-items: center; padding: 12% 10%; text-align: center; color: #1a2744; }
+.fan .c:nth-child(1) { --ph: #6b4c2a; transform: rotate(-14deg) translateX(-18%); }
+.fan .c:nth-child(2) { --ph: #1a4a6b; transform: rotate(-5deg) translateX(-6%); }
+.fan .c:nth-child(3) { --ph: #2a5c3a; transform: rotate(5deg) translateX(6%); }
+.fan .c:nth-child(4) { --ph: #6b1a1a; transform: rotate(14deg) translateX(18%); }
+.door.b:hover .fan .c:nth-child(1) { transform: rotate(-20deg) translateX(-30%); }
+.door.b:hover .fan .c:nth-child(4) { transform: rotate(20deg) translateX(30%); }
+.fan .c .o { font-family: "Courier Prime", monospace; font-size: clamp(0.4rem, 0.3rem + 0.3vw, 0.55rem); letter-spacing: 0.2em; text-transform: uppercase; border-bottom: 1.5px solid #1a2744; padding-bottom: 6%; width: 100%; }
+.fan .c .n { font-family: var(--serif); font-weight: 700; font-size: clamp(0.7rem, 0.5rem + 0.6vw, 1.05rem); margin-top: 12%; }
+.fan .c .s { margin-top: auto; font-family: "Courier Prime", monospace; font-size: clamp(0.38rem, 0.3rem + 0.3vw, 0.52rem); color: #8b0000; border: 1px solid #8b0000; padding: 3% 6%; transform: rotate(-6deg); letter-spacing: 0.1em; }
+.door-note { max-width: var(--col); margin: 1.6rem auto 0; color: var(--dust); font-size: 0.98rem; text-align: center; }
+
+/* ── 06 · DEBRIEF ─────────────────────────────────── */
+#theory { background: linear-gradient(180deg, var(--ink) 0%, #10161f 100%); }
+.mda { max-width: var(--wide); margin: 0 auto; }
+.mda table { width: 100%; border-collapse: collapse; min-width: 42rem; }
+.mda th, .mda td { text-align: left; vertical-align: top; padding: 1rem 1.2rem 1rem 0; border-top: 1px solid var(--rule); font-size: 0.98rem; }
+.mda thead th { font-family: var(--type); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-weight: 400; border-top: 0; }
+.mda tbody th { width: 9rem; }
+.mda tbody th b { display: block; font-size: 2rem; font-weight: 400; font-style: italic; line-height: 1; color: var(--bone); font-variation-settings: "opsz" 60; }
+.mda tbody th span { font-family: var(--type); font-size: 0.7rem; color: var(--dust); text-transform: uppercase; letter-spacing: 0.1em; }
+.mda td.verdict { color: var(--stamp); font-style: italic; }
+.lessons { max-width: var(--col); margin: clamp(2.5rem, 6vw, 4rem) auto 0; display: grid; gap: 2rem; }
+.lesson h3 { font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.8rem); font-variation-settings: "opsz" 40; font-weight: 500; }
+.lesson p { margin-top: 0.6rem; color: var(--dust); }
+.letgo { max-width: var(--wide); margin: clamp(3rem, 8vw, 5.5rem) auto 0; text-align: center; }
+.letgo p { font-size: clamp(1.7rem, 1.1rem + 2.6vw, 3.3rem); font-style: italic; line-height: 1.2; font-variation-settings: "opsz" 72; font-weight: 400; max-width: 22ch; margin-inline: auto; text-wrap: balance; }
+.letgo .label { display: block; margin-bottom: 1.4rem; }
+
+/* ── FOOTER ───────────────────────────────────────── */
+footer { padding-block: 3.5rem 4rem; font-size: 0.92rem; color: var(--dust); }
+footer .grid { max-width: var(--wide); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 2.5rem; }
+footer h4 { font-family: var(--type); font-weight: 400; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); margin: 0 0 0.8rem; }
+footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+footer li { padding-left: 1.2rem; text-indent: -1.2rem; line-height: 1.5; }
+footer .made p + p { margin-top: 0.8rem; }
+
+/* ── GAME OVERLAY ─────────────────────────────────── */
+.player { position: fixed; inset: 0; z-index: 50; background: #05070b; display: flex; flex-direction: column; }
+.player[hidden] { display: none !important; }
+.player-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: calc(env(safe-area-inset-top, 0px) + 0.45rem) max(12px, env(safe-area-inset-right, 0px)) 0.45rem max(12px, env(safe-area-inset-left, 0px)); background: #0b0f17; border-bottom: 1px solid #222b3c; font-family: var(--type); font-size: 0.78rem; color: var(--dust); }
+.player-bar b { color: var(--bone); font-weight: 700; letter-spacing: 0.06em; }
+.player-bar button { font-family: var(--type); font-size: 0.78rem; background: transparent; color: var(--bone); border: 1px solid #3a4560; padding: 0.4rem 0.8rem; cursor: pointer; }
+.player-bar button:hover { border-color: var(--bone); }
+.player iframe { flex: 1; width: 100%; border: 0; background: #000; }
+body.locked { overflow: hidden; }
+
+/* ── REVEAL ───────────────────────────────────────── */
+.rv { transition: transform .8s cubic-bezier(.2,.75,.25,1), opacity .8s ease; }
+.js .rv.pre { transform: translateY(18px) rotate(var(--tilt, 0deg)); opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) { .rv { transition: none; } .js .rv.pre { transform: rotate(var(--tilt, 0deg)); opacity: 1; } .crt-screen .cursor { animation: none; } }
+
+/* ── RESPONSIVE ───────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr); }
+  .strip-walk { grid-template-columns: minmax(0, 1fr); }
+  .strip-fig { order: 0; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--ink); padding-block: 0.6rem; box-shadow: 0 14px 18px -6px var(--ink); }
+  .strip-fig figcaption { display: none; }
+  .step, .step:first-child, .step:last-child { min-height: 34vh; }
+  .doc { grid-template-columns: minmax(0, 1fr); }
+  .doc figure { border-left: 0; border-top: 1px solid #d7ccb4; }
+  .qgrid, .twogames, .vread { grid-template-columns: minmax(0, 1fr); }
+  .vread .doc { position: static; }
+  .vread-comic { max-width: 27rem; width: 100%; margin-inline: auto; }
+  .machines, .doors, .beforeafter { grid-template-columns: minmax(0, 1fr); }
+  footer .grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .reads-ink { grid-template-columns: minmax(0, 1fr); }
+  .older { grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; }
+  .doc { --tilt: 0deg !important; }
+  .doc .reads { grid-template-columns: minmax(0, 1fr); }
+  .doc .reads div + div { padding-left: 0; }
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="hero wrap">
+  <div class="hero-inner">
+    <div>
+      <div class="label">Course 070172 · MA Digital Humanities · University of Vienna · 2026</div>
+      <h1>Don't Kill Hitler</h1>
+      <p class="ask">If you could go back in time and change one thing about the past, what would you do?</p>
+      <p class="dek">Almost everyone gives the same answer. This page is about that answer: where it comes from, the questions hiding inside it, and two games I built to argue with it.</p>
+      <p class="byline"><strong>John Giebfried</strong> · Game Design and Interactive Storytelling</p>
+    </div>
+    <nav class="toc" aria-label="Contents">
+      <div class="label">Contents</div>
+      <ol>
+        <li><a href="#why">The safest bet</a></li>
+        <li><a href="#sources">Two comics, two stories</a></li>
+        <li><a href="#inside">Four questions</a></li>
+        <li><a href="#play">Play</a></li>
+        <li><a href="#debrief">Debrief: two machines</a></li>
+        <li><a href="#theory">What the games taught me</a></li>
+      </ol>
+      <p class="meta">About fifteen minutes to read.<br>The games take six to twelve minutes each.</p>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ══════════════ 01 ══════════════ -->
+<section class="chapter wrap" id="why">
+  <div class="chapter-head">
+    <div class="label">01 · March 2026</div>
+    <h2>The safest bet</h2>
+  </div>
+  <div class="col flow">
+    <p class="lede">In March 2026 I started teaching Game Design and Interactive Storytelling, a joint course between the University of Vienna and Tel Aviv University.</p>
+    <p>Early on I wanted students talking about games before I said a word about theory. That meant a topic both groups already knew cold, one I could assume from the Austrian and the Israeli school systems alike, and one they could start turning into game ideas on the spot.</p>
+    <p class="bet">The safest bet was a man with a very famous mustache.</p>
+    <p>That isn't an easy pick. The course otherwise stays away from the Nazi period: neither my co-teacher in Tel Aviv nor I specialize in it, and it weighs differently on Israeli and Austrian students. We talked it over and agreed it was the right choice anyway, because the games would be about a time-travel trope and how we explain history, not about depicting the Holocaust. The choice came with rules.</p>
+  </div>
+  <ul class="rules-list">
+    <li>No swastikas, SS runes, or other insignia in anything I made. The platformer's banners carry an abstract red roundel.</li>
+    <li>No victims, camps, or atrocity imagery. Cards that name the Holocaust do it in text the players read.</li>
+    <li>No portraits, speeches, or slogans. Nazi leaders appear as small pixel targets or as names on a card.</li>
+    <li class="do">The comedy targets the agents, their plans, and bureaucracy. Never victims.</li>
+    <li class="do">The software never decides who argued best. People vote.</li>
+  </ul>
+  <div class="col flow" style="margin-top:1.6rem">
+    <p>Then I went looking for sources.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 02 ══════════════ -->
+<section class="chapter wrap" id="sources">
+  <div class="chapter-head">
+    <div class="label">02 · Sources</div>
+    <h2>Two comics and two stories</h2>
+  </div>
+  <div class="col flow">
+    <p class="lede">I started with what I remembered: two webcomics and two stories, all about the same trip.</p>
+  </div>
+
+  <div class="srclabel label">Comic one</div>
+  <div class="strip-walk">
+    <figure class="strip-fig" id="stripFig">
+      <div class="strip-frame">
+        <img src="assets/xkcd-1063-kill-hitler.png" width="1309" height="507" alt="xkcd comic #1063, five panels. A man in a hat says he finished his time machine but it is one-use-only. His friend says: you gotta kill Hitler. The man asks why everyone is obsessed with Hitler when there is all of time to explore. The friend says everyone agrees: if you get a time machine, you kill Hitler. The man says fine, brb, killing Hitler, and steps into the machine. He returns: There. Done. He was in some kind of bunker. 1945 was loud. The friend shouts: No!">
+        <span class="dim d1" style="left:calc(10px + 0%);width:calc((100% - 20px) * .1475)"></span>
+        <span class="dim d2" style="left:calc(10px + (100% - 20px) * .1475);width:calc((100% - 20px) * .236)"></span>
+        <span class="dim d3" style="left:calc(10px + (100% - 20px) * .3835);width:calc((100% - 20px) * .314)"></span>
+        <span class="dim d4" style="left:calc(10px + (100% - 20px) * .6975);width:calc((100% - 20px) * .1175)"></span>
+        <span class="dim d5" style="left:calc(10px + (100% - 20px) * .815);width:calc((100% - 20px) * .185)"></span>
+      </div>
+      <figcaption>Randall Munroe, “Kill Hitler,” xkcd #1063 (2012). CC BY-NC 2.5.</figcaption>
+    </figure>
+    <div class="steps">
+      <div class="step" data-step="1"><p>Randall Munroe's xkcd #1063 opens where this conversation always opens. Someone has built a time machine. It works once.</p></div>
+      <div class="step" data-step="2"><p>His friend has one suggestion. The builder objects: all of time to explore, and you want to spend it on one man?</p></div>
+      <div class="step" data-step="3"><p>“Everyone agrees.” That is the joke, and it is also my problem as a teacher. Students arrive with this answer already loaded. It is so automatic that nobody stops to ask whether it would work.</p></div>
+      <div class="step" data-step="4"><p>So he goes.</p></div>
+      <div class="step" data-step="5"><p>He lands in a bunker in 1945. The one use is spent on a man with hours to live, and nothing changes. A time machine is no help to someone who doesn't know any history.</p></div>
+    </div>
+  </div>
+  <div class="reads-ink">
+    <div><span class="k">What it argues</span><p>Timing is everything, and without history the machine does nothing.</p></div>
+    <div class="became"><span class="k">What it became</span><p>The card game's premise: a one-use, one-way machine and one funding slot. And card 40, Operation GÖTTERDÄMMERUNG, which sends an agent to the bunker on April 30, 1945, to make sure nothing changes.</p></div>
+  </div>
+
+  <div class="srclabel label">Comic two</div>
+  <div class="vread">
+    <div class="doc noimg">
+      <div class="slip">
+        <div class="cat"><span>Webcomic</span><span>Read it top to bottom</span></div>
+        <h3>“The home of Adolf Hitler, 1933: Doubt creeps in”</h3>
+        <p class="src">Webcomic on Tapas. <a href="https://tapas.io/episode/15370" target="_blank" rel="noopener">See the original</a>.</p>
+        <p>Night watch outside the new Chancellor's door. Time travelers keep materializing in the corridor, one after another, and the guards keep fighting them off.</p>
+        <blockquote>“It's these constant attempts on his life by time travellers!! I mean, you kind of have to wonder!!”</blockquote>
+        <div class="reads">
+          <div><span class="k">What it argues</span><p>If everyone agrees, everyone goes. Seen from the guards' side, the stream of assassins starts to look like evidence about the man they guard.</p></div>
+          <div class="became"><span class="k">What it became</span><p>The platformer's setting: 1933, the Chancellery, and guards between you and the door.</p></div>
+        </div>
+      </div>
+    </div>
+    <figure class="vread-comic">
+      <div class="vframe"><img src="assets/doubt-creeps-in-vertical.jpg" width="472" height="3044" loading="lazy" alt="Seven-panel color comic, read top to bottom. A guard is told Chancellor Hitler has retired for the evening and is not to be disturbed, and salutes. A glum guard, Jürgen, asks his corporal whether he can talk to him; he says of course Herr Hitler is the great leader who will bring respect and prosperity to Germany, he knows that, it's just. A glowing time portal opens in the corridor. A time traveler in a yellow suit fires a ray gun and the guards fight back. Another traveler bursts through a door and a guard shoots him. Seated by the fallen traveler, the guard says it's these constant attempts on his life by time travellers, you kind of have to wonder, and a voice behind the door shouts: will you be quiet out there."></div>
+      <figcaption>“The home of Adolf Hitler, 1933: Doubt creeps in,” Tapas. Uniform armbands and a salute appear as drawn in the original.</figcaption>
+    </figure>
+  </div>
+
+  <div class="srclabel label">Story one</div>
+  <div class="doc noimg single">
+    <div class="slip">
+      <div class="cat"><span>1996</span><span>Novel</span></div>
+      <h3>Stephen Fry, <em>Making History</em></h3>
+      <p>A Cambridge history student and a physicist arrange for Hitler never to be born. A more capable Nazi leader, Rudolf Gloder, rises in his place, and the history that follows is worse.</p>
+      <div class="reads">
+        <div><span class="k">What it argues</span><p>The successor problem. Remove the man and the movement may find a better one.</p></div>
+        <div class="became"><span class="k">What it became</span><p>The platformer's engine. Every kill hands the movement to the next man in line, and every map after a kill is worse than the one before. On the cards, complications like HANGING JUDGE and WANNSEE.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="srclabel label">Story two</div>
+  <div class="doc single">
+    <div class="slip">
+      <div class="cat"><span>2007</span><span>Short story</span></div>
+      <h3>Desmond Warzel, “Wikihistory”</h3>
+      <p class="src"><em>Abyss &amp; Apex</em>, 2007; reprinted at Tor.com, 2011. <a href="https://reactormag.com/wikihistory/" target="_blank" rel="noopener">Read it in full</a>.</p>
+      <p>A forum thread for the International Association of Time Travelers, where veterans spend their days undoing the newcomers who kill Hitler on their first trip.</p>
+      <div class="reads">
+        <div><span class="k">What it argues</span><p>Killing Hitler is a rookie mistake, and someone has to clean up after the rookies. Time travel as an institution with bylaws.</p></div>
+        <div class="became"><span class="k">What it became</span><p>The Temporal Intelligence Directorate, the bureaucracy both games run on, and Standing Order 1147, the platformer's rules of time travel.</p></div>
+      </div>
+    </div>
+    <figure>
+      <div class="forum" role="img" aria-label="Excerpt from Wikihistory formatted as forum posts">
+        <div class="bar">IATT Members' Forum · Europe · 20th c. · WWII</div>
+        <div class="post"><span class="who">BigChill</span> <span class="when">18:06:59</span><br>Take it easy on the kid, SilverFox316; everybody kills Hitler on their first trip.</div>
+        <div class="post"><span class="who">SilverFox316</span> <span class="when">02:29:17</span><br>…no Hitler means no Third Reich, no World War II, no rocketry programs, no electronics, no computers, no time travel. Get the picture?</div>
+        <div class="post"><span class="who">BarracksRoomLawyer</span> <span class="when">15:41:18</span><br>Point of order: issues related to Hitler's service in the Bavarian Army ought to go in the World War I forum.</div>
+      </div>
+      <figcaption>Excerpts, Desmond Warzel, “Wikihistory” © 2007.</figcaption>
+    </figure>
+  </div>
+
+  <div class="older">
+    <figure>
+      <img src="assets/weird-tales-1941-07.jpg" width="600" height="894" loading="lazy" alt="Cover of Weird Tales, July 1941. A small label in the corner reads I Killed Hitler.">
+      <figcaption><em>Weird Tales</em>, July 1941</figcaption>
+    </figure>
+    <div class="flow">
+      <div class="label">Older than I thought</div>
+      <p>I had filed all of this under internet humor. It isn't. The earliest version I found ran in <em>Weird Tales</em> in July 1941, five months before Pearl Harbor: Ralph Milne Farley's “I Killed Hitler.” People were imagining this trip while the war was on and Hitler was alive to be killed.</p>
+    </div>
+  </div>
+
+  <div class="col flow" style="margin-top:clamp(3rem,7vw,4.5rem)">
+    <p class="lede">The four became two different games.</p>
+  </div>
+  <div class="twogames">
+    <div class="tg plat">
+      <span class="label">Into the platformer</span>
+      <p><b>“Doubt creeps in”</b> gave it the setting: 1933, the Chancellery, and guards between you and the door.</p>
+      <p><b><em>Making History</em></b> gave it the engine: every kill hands power to someone worse.</p>
+    </div>
+    <div class="tg card">
+      <span class="label">Into the card game</span>
+      <p><b>xkcd</b> gave it the premise: one trip, one way, one funding slot, and a last card set in the bunker.</p>
+      <p><b>“Wikihistory”</b> gave it the Directorate: time travel as an institution with paperwork. The platformer borrows the same bureaucracy for its rules.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 03 ══════════════ -->
+<section class="chapter wrap" id="inside">
+  <div class="chapter-head">
+    <div class="label">03 · Four questions</div>
+    <h2>What any game here has to answer</h2>
+  </div>
+  <div class="col flow" style="margin-bottom:clamp(2rem,5vw,3rem)">
+    <p class="lede">Line the four sources up and the same questions keep coming back. They are real questions in history and ethics, students already hold opinions on them, and no two sources answer them the same way. Any game built on this joke has to take a side.</p>
+  </div>
+  <div class="qgrid">
+    <div class="qc">
+      <small>One</small>
+      <h3>Would it work?</h3>
+      <p>The oldest argument in the room, and it predates Hitler by a century. Thomas Carlyle: “The History of the world is but the Biography of great men.” Herbert Spencer: “Before he can re-make his society, his society must make him.” Historians of Nazi Germany fought it out again as intentionalists against functionalists. The synthesis I teach is Ian Kershaw's: across the Reich, people were “working towards the Führer.” Kill him and you remove what they were working towards. You don't remove them.</p>
+    </div>
+    <div class="qc">
+      <small>Two</small>
+      <h3>Was he born, or made?</h3>
+      <p>The infant version of the question smuggles in a theory of human nature. If you would kill the baby, you believe the monster was there at birth. If you would rather get the young man into art school, you believe Vienna made him.</p>
+    </div>
+    <div class="qc">
+      <small>Three</small>
+      <h3>What would you have to do?</h3>
+      <p>Almost every version has an assassin in it, and almost none asks what the act costs the person who commits it. In both comics the assassin is a punchline. Take the act seriously and the question stops being “would it work” and becomes “could you live with it.”</p>
+    </div>
+    <div class="qc">
+      <small>Four</small>
+      <h3>Can the past change at all?</h3>
+      <p>Physicists have a name for one answer, the Novikov self-consistency principle: if time travel exists, any trip into the past was always part of the history you already have. Fry says the past can change, and the change makes it worse. Warzel says it can, and veterans spend their days changing it back.</p>
+    </div>
+  </div>
+  <div class="col flow" style="margin-top:clamp(2rem,5vw,3rem)">
+    <p>The two games answer these four differently. Play first. The answers are in the debrief.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 04 ══════════════ -->
+<section class="chapter wrap" id="play">
+  <div class="chapter-head">
+    <div class="label">04 · Play</div>
+    <h2>Pick a machine</h2>
+  </div>
+  <div class="col flow" style="margin-bottom:clamp(2rem,5vw,3rem)">
+    <p class="lede">Each game opens over this page. When you finish, it brings you back to the debrief, where the two games answer those four questions.</p>
+  </div>
+  <div class="doors">
+    <article class="door a">
+      <div class="screen">
+        <div class="crt-screen" aria-hidden="true">
+          <div class="t1">TEMPORAL INTELLIGENCE DIRECTORATE — SIMULATION</div>
+          <div class="t2">DON'T KILL HITLER</div>
+          <div class="t3">The machine is one way. <span class="cursor"></span></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="label" style="color:var(--phosphor)">Game one</div>
+        <h3>The platformer</h3>
+        <p>Five runs, a decade apart: the Chancellery in 1933, an SS archive, a film studio, Germania and the moon, then 1933 again. Arrow keys or WASD, Space to jump, land on enemies to stomp them. Classroom mode is on by default.</p>
+        <div class="facts"><span>6–8 minutes</span><span>Keyboard; touch works</span><span>Sound on</span></div>
+        <div class="actions">
+          <button class="btn" type="button" data-open="platformer/index.html" data-title="Don't Kill Hitler · the platformer">Deploy</button>
+          <a class="small-link" href="platformer/index.html" target="_blank" rel="noopener">or open in its own tab</a>
+        </div>
+      </div>
+    </article>
+    <article class="door b">
+      <div class="screen">
+        <div class="desk" aria-hidden="true">
+          <div class="fan">
+            <div class="c"><div class="o">Mission Dossier</div><div class="n">Phase I</div><div class="s">Eyes only</div></div>
+            <div class="c"><div class="o">Mission Dossier</div><div class="n">Phase II</div><div class="s">Eyes only</div></div>
+            <div class="c"><div class="o">Mission Dossier</div><div class="n">Phase III</div><div class="s">Eyes only</div></div>
+            <div class="c"><div class="o">Mission Dossier</div><div class="n">Phase IV</div><div class="s">Eyes only</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="label" style="color:var(--brass)">Game two</div>
+        <h3>Mission Dossiers</h3>
+        <p>Play a whole game at a table of four. Pick operations off the table by name, keep one, watch a pitch and its cross-examination, vote in four rounds and a final, and see who gets offered the card that was held back.</p>
+        <div class="facts"><span>8–12 minutes</span><span>Mouse, keys, or touch</span><span>All 40 cards inside</span></div>
+        <div class="actions">
+          <button class="btn" type="button" data-open="card-game/index.html" data-title="Mission Dossiers · walkthrough">Open the file</button>
+          <a class="small-link" href="card-game/index.html" target="_blank" rel="noopener">or open in its own tab</a>
+        </div>
+      </div>
+    </article>
+  </div>
+  <p class="door-note">The debrief is right below if you would rather read first. It works better after you play.</p>
+</section>
+
+<!-- ══════════════ 05 ══════════════ -->
+<section class="chapter wrap" id="debrief">
+  <div class="chapter-head">
+    <div class="label">05 · Debrief</div>
+    <h2>Same question, two machines</h2>
+  </div>
+  <div class="col flow" style="margin-bottom:clamp(2rem,5vw,3rem)">
+    <p class="lede">Same four sources, same four questions. I built the two games to disagree about where an argument lives.</p>
+  </div>
+
+  <div class="machines">
+    <div class="machine crt">
+      <div class="label">Game one · The platformer</div>
+      <h3>Don't Kill Hitler</h3>
+      <div class="sub">First built in a few hours with AI assistance, March 2026</div>
+      <p>You are a temporal agent in the Reich Chancellery in 1933. Run, jump, stomp the guards, reach the target. Hitler dies, and a map shows the world you made: Himmler, 1943, Europe to the Urals. Each new agent lands a decade later in a worse world. Goebbels in 1953, Speer in 1963 with a base on the moon. Then a machine from that last world reaches back to 1933, and you arrive between your own first self and Hitler.</p>
+      <p>I called it an illustrated lecture with jumping in it, and I meant that. Its verbs are the verbs of every platformer ever made. For four runs the argument sits in the briefings and the maps between levels; strip out the words and you have a generic runner. The last run is different, and the theory below comes back to why.</p>
+    </div>
+    <div class="machine paper">
+      <div class="label">Game two · The card game</div>
+      <h3>Mission Dossiers</h3>
+      <div class="sub">Designed over about three weeks, February–March 2026</div>
+      <p>Forty mission cards across four phases of Hitler's life, laid on the table with only their names showing. Players pick two by name, turn them over, keep one, and have two minutes to argue that their mission works and leaves a better world behind. Any other player gets one hostile question. Then everyone ranks the pitches they didn't make, 3-2-1, by secret ballot.</p>
+      <p>Here the argument lives in the rules. Cross-examination, two voting criteria, and ranking make players build the structuralist counterargument against each other in real time. Take the rules away and you have people telling stories.</p>
+    </div>
+  </div>
+
+  <div class="compare wrap-none scrollx">
+    <table>
+      <thead><tr><th scope="col"></th><th scope="col">Platformer</th><th scope="col">Card game</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">How long it takes</th><td>Six to eight minutes</td><td>One class session, 60 to 90 minutes</td></tr>
+        <tr><th scope="row">Who decides who's right</th><td>I do, before anyone plays</td><td>The table, by secret ballot</td></tr>
+        <tr><th scope="row">What it can't do</th><td>Let players disagree with me, until the last corridor</td><td>Work without people willing to argue</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div class="subhead">
+    <div class="label">The four questions</div>
+    <h3>Two machines, two sets of answers</h3>
+  </div>
+  <div class="widecol scrollx">
+    <table class="maptable">
+      <thead><tr><th scope="col">The question</th><th scope="col">The platformer's answer</th><th scope="col">The card game's answer</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Would it work?</th><td>No. Four conquest maps say so, each worse than the last.</td><td>The table argues it out. Criterion I on the ballot.</td></tr>
+        <tr><th scope="row">Born, or made?</th><td>Doesn't ask.</td><td>Three CRADLE cards, three art-school cards, a Wittgenstein card.</td></tr>
+        <tr><th scope="row">What would you have to do?</th><td>Walk into the target. No gun.</td><td>Criterion II on the ballot. You never replace a historical person.</td></tr>
+        <tr><th scope="row">Can the past change?</th><td>Yes, for the worse, until the last run hands you the choice.</td><td>Open. The last card argues it shouldn't.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col flow" style="margin-top:clamp(2rem,5vw,3rem)">
+    <p>The platformer tells students a story: every kill makes it worse, and the last run hands them the choice. The card game makes students tell the story, and the deck leans the same way: every complication is the strongest objection to its own mission, and the last card argues the machine should never have been built. Different routes, roughly the same place. Removing the man doesn't remove the people working towards him.</p>
+  </div>
+
+  <div class="subhead">
+    <div class="label">The design log</div>
+    <h3>How the card game got made</h3>
+    <p class="muted" style="margin-top:.6rem;font-size:.95rem">The platformer's design decisions are in the October note at the end of this section.</p>
+  </div>
+  <ol class="log">
+    <li class="rejected"><b><span class="tag">Rejected</span>A platformer where you play Hitler's bodyguards</b><p>Players would spend the game protecting Hitler. With Israeli students in the room, that identification would swamp anything the game had to teach.</p></li>
+    <li class="rejected"><b><span class="tag">Rejected</span>Social deduction with temporal police</b><p>Wikihistory's premise, almost literally. I chose a debate party game instead: everyone draws, everyone pitches, the table judges.</p></li>
+    <li><b>Scoring went through three versions</b><p>Bidding tokens were too fiddly. Fund-or-reject votes were too blunt. Ranked ballots, 3-2-1 with no self-voting, force every voter to compare plans.</p></li>
+    <li><b>The frame became a spy dossier</b><p>I ran the same brainstorm prompt through several AI models and clustered the results. The dossier register beat the academic, the casual, and the Cards Against Humanity ones. Every player became an agent of the Temporal Intelligence Directorate.</p></li>
+    <li><b>Phases, not tones</b><p>Cards are organized by phase of Hitler's life so players compare like with like. One hard rule: every plan must either kill Hitler or stop him from consolidating power.</p></li>
+    <li><b>Variants that disagree with each other</b><p>Popular targets get two or three variants, each implying a different theory of causation. Later I added world cards that change Hitler's environment rather than Hitler: Sarajevo, the sealed train, Versailles, Lueger, the 1849 crown.</p></li>
+    <li><b>The agent never replaces a historical person</b><p>You can persuade, bribe, or position yourself. You brief Jesse Owens; you are not Jesse Owens. You persuade Georg Elser; you are not Elser.</p></li>
+    <li><b>Outside review, and its limits</b><p>I sent the deck to other models for fact-checking and design review, and took most of their changes. Some of their corrections were themselves wrong. Catching those took a historian.</p></li>
+    <li><b>The last card turns on the game</b><p>Operation GÖTTERDÄMMERUNG sends an agent to the bunker to make sure nothing changes, and asks them to argue that the machine should never have been built.</p></li>
+    <li><b>March 9, 2026: played cold in class</b><p>Printed four to a page, played without any theory first, debriefed, and then used to teach MDA from what had just happened in the room.</p></li>
+    <li><b>October 2026: face up</b><p>The cards now lie on the table name side up, each round's deck printed in the look of its own years. Players draft two by name and only then read the mission and what it costs. Duplicate names had to go, so the three CRADLE cards became CRADLE, FOUNDLING, and LODGER.</p></li>
+  </ol>
+
+  <div class="subhead">
+    <div class="label">Before and after</div>
+    <h3>What the model gave me, and what I kept</h3>
+  </div>
+  <div class="beforeafter">
+    <div class="raw">
+      <span class="label">Brainstorm output · List 1, “Serious” · February 2026</span>
+      <b>The Art School Letter, 1907</b> — You arrive in the cramped office of the Vienna Academy of Fine Arts admissions committee on the day they review Adolf Hitler's portfolio. You have forged recommendation letters, modest bribe money, and convincing German, but only one chance to nudge the committee into accepting him into the academy. <b>Challenge:</b> Even if you turn Hitler into a mediocre working artist, do you actually remove the conditions in Germany that made a Hitler-figure almost inevitable?
+    </div>
+    <div class="final3">
+      <div class="mini" style="--ph:#1a4a6b"><div class="op">STILL LIFE</div><div class="var">Variant A · The Bribe · Vienna 1907</div><div class="claim">Acceptance doesn't remove the ideology — it gives it a studio.</div></div>
+      <div class="mini" style="--ph:#1a4a6b"><div class="op">BUENOS AIRES</div><div class="var">Variant B · The Ticket · Vienna 1907</div><div class="claim">You've just offered Adolf Hitler a free trip to Argentina.</div></div>
+      <div class="mini" style="--ph:#1a4a6b"><div class="op">COMMISSION</div><div class="var">Variant C · The Patron · Vienna 1909</div><div class="claim">You will spend years being genuinely kind to Adolf Hitler.</div></div>
+    </div>
+  </div>
+  <p class="ba-caption">The brainstorm asks the structural question in general terms. The final cards split it into three bets about what made him (rejection, place, or poverty) and print the strongest objection to each bet on the card, so the table doesn't have to invent it.</p>
+
+  <div class="october">
+    <div class="label">October 2026 · Rebuilt</div>
+    <p style="margin-top:.6rem">In March I told students the platformer's rough pixel art was the point: this is what an argument looks like when the effort goes into the argument. This fall I rebuilt both games with a newer model. The platformer now runs through five worlds a decade apart, with conquest maps between them, and the card game has a walkthrough you can click through without five friends. Most of that changed nothing about the argument. The production gap keeps closing. Two changes did matter, and both were design decisions, not production ones. The platformer's last run now asks the player to choose which way to go. And the cards now lie face up, so players commit to a mission by its name before they read what it costs, which is the agent's position exactly. No class has played that version yet.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 06 ══════════════ -->
+<section class="chapter wrap" id="theory">
+  <div class="chapter-head">
+    <div class="label">06 · Theory</div>
+    <h2>What two small games taught me</h2>
+  </div>
+  <div class="col flow" style="margin-bottom:clamp(2rem,5vw,3rem)">
+    <p class="lede">My sessions always run in the same order: play first, debrief second, theory third. Here's the theory.</p>
+    <p>The MDA framework (Hunicke, LeBlanc, and Zubek, 2004) reads a game in three layers. <em>Mechanics</em> are the rules. <em>Dynamics</em> are what players do with those rules once play starts. <em>Aesthetics</em> are what players feel. Designers build from mechanics outward; players meet the game from the feelings inward. Run it on both games and it breaks in a useful place.</p>
+  </div>
+
+  <div class="mda scrollx">
+    <table>
+      <thead><tr><th scope="col"></th><th scope="col">Platformer</th><th scope="col">Card game</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><b>M</b><span>Mechanics</span></th><td>Run, jump, stomp. A timer, hearts, four targets a decade apart. In the last run, two exits.</td><td>Pick two by name, keep one. A two-minute pitch. One question. A ranked secret ballot with two criteria. The pass-off.</td></tr>
+        <tr><th scope="row"><b>D</b><span>Dynamics</span></th><td>Dodge bullets, time the jumps, race the clock. In the last corridor, players stop running and hesitate.</td><td>Players draft counterarguments while someone else is pitching. The cross-examination goes straight for whatever the pitch avoided. Alliances form around the pass-off.</td></tr>
+        <tr><th scope="row"><b>A</b><span>Aesthetics</span></th><td>Challenge and Fantasy, and at the very end something closer to the card game's discomfort.</td><td>Fellowship, Expression, Challenge, and one MDA doesn't list. I call it <em>productive argumentative failure</em>: watching your own plan come apart in public and understanding why.</td></tr>
+        <tr><th scope="row"><b>?</b><span>The argument</span></th><td class="verdict">For four runs, not in this chain: it is in the briefings and maps MDA tells you to look past. In the last run, the choice of direction is the argument.</td><td class="verdict">Produced by the chain. Remove a rule and the argument goes with it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col flow" style="margin-top:clamp(2rem,5vw,3rem)">
+    <blockquote class="pull">“The content of a game is its behavior, not the media that streams out of it.”<cite>Hunicke, LeBlanc, and Zubek, “MDA,” 2004</cite></blockquote>
+    <p>That sentence describes the card game exactly and the platformer hardly at all, which is why I teach them as a pair. Revising the platformer, I let it cross the line once, on purpose, in its last corridor.</p>
+  </div>
+
+  <div class="lessons">
+    <div class="lesson">
+      <h3>If the argument only works when you explain it, it isn't in the game yet.</h3>
+      <p>This is the line I close the session with. The card game needs only its rules and a room of people. The platformer needed its text, so in revising it I took my own advice once: the last run stops telling players what the agent does and makes them decide.</p>
+    </div>
+    <div class="lesson">
+      <h3>Constraints carry the content.</h3>
+      <p>A one-way machine means the agent has to live in the world they make. Never replacing a historical person means every plan depends on persuading someone. Two criteria turn “which plan is best” into a fight between effectiveness and conscience. Each rule is a claim about history that players have to work inside.</p>
+    </div>
+    <div class="lesson">
+      <h3>Print the objection on the card.</h3>
+      <p>Every complication is the strongest structuralist objection to its own mission. A student who knows nothing about Weimar can still ask the hard question, because the card hands it to them.</p>
+    </div>
+    <div class="lesson">
+      <h3>Feel it first, name it later.</h3>
+      <p>Players reach the platformer's last corridor before they understand what it is asking. My planning note from March says students would feel it before they could articulate it. So the game ends with questions instead of a verdict (why did you go right; what is now on your conscience) and records nothing. The gap between feeling and naming is where the debrief starts.</p>
+    </div>
+    <div class="lesson">
+      <h3>AI closes the production gap, not the design gap.</h3>
+      <p>Both games were built with AI help. The tools produced a working platformer in hours and a far more polished one this fall. They also produced plenty of plausible card ideas, most of them generic, and fact-checks that were sometimes wrong. Deciding what the game argues, what it refuses to show, and which corrections to trust was the work, and that part didn't get any faster.</p>
+    </div>
+  </div>
+
+  <div class="letgo">
+    <span class="label">From the rules sheet</span>
+    <p>The machine is one way. Once you argue it, it's argued. Leave it on the table when you walk out.</p>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <div class="grid">
+    <div>
+      <h4>Sources</h4>
+      <ul>
+        <li>Bogost, Ian. <em>Persuasive Games: The Expressive Power of Videogames.</em> MIT Press, 2007.</li>
+        <li>Carlyle, Thomas. <em>On Heroes, Hero-Worship, and the Heroic in History.</em> 1841.</li>
+        <li>Farley, Ralph Milne [Roger Sherman Hoar]. “I Killed Hitler.” <em>Weird Tales</em>, July 1941.</li>
+        <li>Fry, Stephen. <em>Making History.</em> 1996.</li>
+        <li>“The home of Adolf Hitler, 1933: Doubt creeps in.” Webcomic, Tapas, <a href="https://tapas.io/episode/15370" target="_blank" rel="noopener">tapas.io/episode/15370</a>.</li>
+        <li>Hunicke, Robin, Marc LeBlanc, and Robert Zubek. “MDA: A Formal Approach to Game Design and Game Research.” AAAI Workshop on Challenges in Game AI, 2004.</li>
+        <li>Kershaw, Ian. “‘Working Towards the Führer’: Reflections on the Nature of the Hitler Dictatorship.” <em>Contemporary European History</em> 2, no. 2 (1993).</li>
+        <li>Munroe, Randall. “Kill Hitler.” <em>xkcd</em> #1063, 2012. CC BY-NC 2.5.</li>
+        <li>Spencer, Herbert. <em>The Study of Sociology.</em> 1873.</li>
+        <li>Warzel, Desmond. “Wikihistory.” <em>Abyss &amp; Apex</em>, 2007; reprinted Tor.com, 2011.</li>
+      </ul>
+    </div>
+    <div class="made">
+      <h4>About this page</h4>
+      <p>Game Design and Interactive Storytelling (070172), MA Digital Humanities, University of Vienna, summer semester 2026 (March to June), with Dr. Ahuva Liberles and students from Tel Aviv University.</p>
+      <p>Card text, rules, design decisions, and historical judgments are mine. The code for both games and this page was written with Claude (Anthropic) under my direction in March and October 2026.</p>
+      <p>Comics and cover are reproduced for teaching and commentary, with credit to their creators.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+  <div class="player-bar">
+    <b id="playerTitle">Game</b>
+    <button type="button" id="playerClose">Close · back to the essay</button>
+  </div>
+  <iframe id="playerFrame" title="Game" allow="autoplay; fullscreen"></iframe>
+</div>
+
+<script>
+(function () {
+  document.documentElement.classList.add('js');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reading progress hairline
+  var bar = document.getElementById('progress');
+  function onScroll() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Strip walk: highlight the panel for the step in view
+  var fig = document.getElementById('stripFig');
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          steps.forEach(function (s) { s.classList.toggle('on', s === e.target); });
+          fig.setAttribute('data-step', e.target.getAttribute('data-step'));
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach(function (s) { io.observe(s); });
+    // Leaving the walk restores the full strip
+    var walk = document.querySelector('.strip-walk');
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) { fig.removeAttribute('data-step'); steps.forEach(function (s) { s.classList.remove('on'); }); }
+      });
+    }).observe(walk);
+
+    // Archive slips settle in from a visible resting state
+    if (!reduce) {
+      var docs = document.querySelectorAll('.rv');
+      var ro = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.remove('pre'); ro.unobserve(e.target); }
+        });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      docs.forEach(function (d) {
+        var r = d.getBoundingClientRect();
+        if (r.top > window.innerHeight) { d.classList.add('pre'); ro.observe(d); }
+      });
+    }
+  }
+
+  // Game overlay
+  var player = document.getElementById('player');
+  var frame = document.getElementById('playerFrame');
+  var title = document.getElementById('playerTitle');
+  var lastOpener = null;
+  function openGame(src, label, opener) {
+    lastOpener = opener || null;
+    title.textContent = label;
+    frame.setAttribute('title', label);
+    frame.src = src;
+    player.hidden = false;
+    document.body.classList.add('locked');
+    frame.addEventListener('load', function once() {
+      frame.removeEventListener('load', once);
+      try { frame.contentWindow.focus(); } catch (err) {}
+    });
+    setTimeout(function () { try { frame.focus(); } catch (err) {} }, 60);
+  }
+  function closeGame(toDebrief) {
+    player.hidden = true;
+    document.body.classList.remove('locked');
+    frame.src = 'about:blank';
+    if (toDebrief) {
+      var d = document.getElementById('debrief');
+      d.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    } else if (lastOpener) {
+      lastOpener.focus();
+    }
+  }
+  document.querySelectorAll('[data-open]').forEach(function (b) {
+    b.addEventListener('click', function () { openGame(b.getAttribute('data-open'), b.getAttribute('data-title'), b); });
+  });
+  document.getElementById('playerClose').addEventListener('click', function () { closeGame(false); });
+  document.addEventListener('keydown', function (e) {
+    if (!player.hidden && e.key === 'Escape') closeGame(false);
+  });
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && d.dkh === 'return') closeGame(true);
+    if (d && d.dkh === 'open' && typeof d.src === 'string' && /^(platformer|card-game)\/index\.html$/.test(d.src)) {
+      openGame(d.src, d.src.indexOf('platformer') === 0 ? "Don't Kill Hitler · the platformer" : 'Mission Dossiers · walkthrough');
+    }
+  });
+  if (location.hash === '#debrief') {
+    setTimeout(function () { document.getElementById('debrief').scrollIntoView(); }, 50);
+  }
+})();
+</script>
+</body>
+</html>

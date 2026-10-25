@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission Dossiers · Walkthrough</title>
+<!--
+  Don't Kill Hitler: Mission Dossiers — guided walkthrough of a full game (web edition, October 2026, v2).
+  Cards lie face up on the table, name side showing; the mission and complication are on the other side.
+  Each round's deck is printed in the look of its own years, on a table mat that maps the round's places.
+  Card text is inlined verbatim from data/cards.json by tools/inline_cards.py. Do not edit card text here.
+  The software never judges arguments. The other agents' picks and ballots are random and labeled as samples.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@300;400;600&family=Federant&family=Federo&family=Courier+Prime:wght@400;700&family=Jost:wght@400;500;700;800&family=Special+Elite&family=Big+Shoulders+Stencil+Display:wght@800&display=swap" rel="stylesheet">
+<style>
+/* Layout: a committee room. A navy briefing column narrates; the walnut table holds the cards.
+   Chrome uses the Diplomatic Dispatch palette of the March print deck. Each round's cards and table mat
+   use a period look: I Vienna Secession, II wartime field telegram, III Bauhaus, IV Allied intelligence file. */
+:root {
+  --cream: #faf7f0; --cream-2: #f0ebe0; --navy: #1a2744; --navy-2: #22325a; --red: #8b0000; --red-bright: #c0392b;
+  --tan: #c8b89a; --label: #6b5a40; --ink: #1a1a0a;
+  --walnut: #2c1c12; --walnut-2: #1c120b; --leather: #1e3527; --gold: #c9a65a;
+  --display: "Playfair Display", "Didot", "Bodoni 72", Georgia, serif;
+  --body: "Libre Baskerville", Baskerville, Georgia, serif;
+  --label-font: "Oswald", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  /* round looks */
+  --s-ivory: #f2e9d0; --s-black: #15130f; --s-gold: #b48a2c; --s-gold-hi: #e2c46c; --s-gold-dk: #6d5214;
+  --t-buff: #eadcb2; --t-ink: #2a241a; --t-red: #8a3b22; --t-violet: #5b3f8c; --t-tape: #fbf7ea;
+  --b-white: #f3f0e8; --b-red: #d7301f; --b-yellow: #f2b705; --b-blue: #1f4e9c; --b-black: #111;
+  --d-manila: #dcc28a; --d-manila-dk: #b8975a; --d-red: #b3261e; --d-paper: #f7f3e8; --d-ink: #231c10;
+  --f-sec: "Federant", "Federo", Georgia, serif; --f-sec2: "Federo", "Federant", Georgia, serif;
+  --f-type: "Courier Prime", "Courier New", Courier, monospace; --f-bau: "Jost", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  --f-typed: "Special Elite", "Courier Prime", "Courier New", monospace; --f-stencil: "Big Shoulders Stencil Display", "Oswald", Impact, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--walnut-2); color: var(--cream); font-family: var(--body); overflow: hidden; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.topbar { display: flex; align-items: center; gap: 1rem; padding: calc(env(safe-area-inset-top, 0px) + .55rem) max(14px, env(safe-area-inset-right, 0px)) .55rem max(14px, env(safe-area-inset-left, 0px)); background: #111a2e; border-bottom: 1px solid #2b3a5e; font-family: var(--label-font); }
+.brand { font-weight: 300; letter-spacing: .28em; text-transform: uppercase; font-size: .72rem; white-space: nowrap; color: #c9d2e6; }
+.brand b { font-weight: 600; color: var(--cream); }
+.stepper { flex: 1; display: flex; gap: 3px; min-width: 0; }
+.stepper button { flex: 1; height: 6px; border: 0; background: #2b3a5e; cursor: pointer; padding: 0; position: relative; }
+.stepper button.gap { margin-left: 5px; }
+.stepper button.done { background: var(--seg, #6a7ba6); opacity: .62; }
+.stepper button.cur { background: var(--seg, var(--cream)); opacity: 1; box-shadow: 0 0 0 1px var(--cream); }
+.stepper button:hover::after { content: attr(data-label); position: absolute; top: 12px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; background: #0b1120; color: var(--cream); padding: 3px 6px; z-index: 20; }
+.tbtn { font-family: var(--label-font); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; background: transparent; border: 1px solid #3a4b74; color: #dfe5f2; padding: .38rem .7rem; cursor: pointer; white-space: nowrap; }
+.tbtn:hover { border-color: var(--cream); }
+
+.main { display: grid; grid-template-columns: minmax(18rem, 25rem) minmax(0, 1fr); min-height: 0; }
+.brief { background: var(--navy); border-right: 1px solid #2b3a5e; display: flex; flex-direction: column; min-height: 0; }
+.brief-scroll { flex: 1; overflow-y: auto; padding: clamp(1.2rem, 2.4vw, 2.2rem) clamp(1.1rem, 2vw, 1.8rem); }
+.kicker { font-family: var(--label-font); font-size: .74rem; letter-spacing: .26em; text-transform: uppercase; color: #9fb0d6; }
+.brief h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.7rem, 1.1rem + 1.6vw, 2.6rem); line-height: 1.08; margin-top: .55rem; text-wrap: balance; }
+.brief .txt { margin-top: 1rem; font-size: clamp(.98rem, .86rem + .35vw, 1.2rem); line-height: 1.65; color: #e9e6dc; display: grid; gap: .85em; }
+.brief .txt em { color: #fff; }
+.note { font-size: .86em; color: #b9c3dc; border-left: 2px solid #5a6b94; padding-left: .8rem; }
+.memo { font-family: var(--display); font-style: italic; font-size: 1.05em; color: #fff; border-left: 2px solid var(--red-bright); padding-left: .9rem; }
+.status { font-family: var(--label-font); font-size: .8em; letter-spacing: .14em; text-transform: uppercase; color: #fff; background: rgba(0,0,0,.25); border-left: 3px solid var(--gold); padding: .5rem .7rem; }
+.status.you { border-left-color: var(--red-bright); background: rgba(192,57,43,.18); }
+.dlog { list-style: none; display: grid; gap: .25rem; font-family: var(--label-font); font-size: .78em; letter-spacing: .06em; color: #c9d2e6; max-height: 13.5rem; overflow-y: auto; }
+.dlog li { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); gap: .3rem; }
+.dlog li b { color: var(--gold); font-weight: 400; }
+.dlog li strong { color: #fff; font-weight: 600; letter-spacing: .08em; }
+.dlog li.k { color: #f3e2b8; }
+.criteria { background: var(--cream-2); color: var(--ink); padding: .9rem 1rem; border-left: 3px solid var(--navy); font-size: .9em; display: grid; gap: .6rem; }
+.criteria .lab { font-family: var(--label-font); font-weight: 600; font-size: .66rem; letter-spacing: .24em; text-transform: uppercase; color: var(--navy); border-bottom: 1px solid var(--tan); padding-bottom: .3rem; }
+.criteria li { list-style: none; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .3rem; line-height: 1.45; }
+.criteria li b { font-family: var(--display); font-size: 1.2rem; color: var(--navy); line-height: 1; }
+.criteria strong { font-style: italic; font-weight: 700; }
+.nav { display: flex; gap: .6rem; align-items: center; padding: .9rem clamp(1.1rem, 2vw, 1.8rem) calc(.9rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #2b3a5e; background: #16223b; }
+.nav .count { font-family: var(--label-font); font-size: .72rem; letter-spacing: .18em; color: #9fb0d6; margin-right: auto; }
+.btn { font-family: var(--label-font); font-weight: 600; font-size: .82rem; letter-spacing: .16em; text-transform: uppercase; padding: .7rem 1.1rem; border: 0; cursor: pointer; background: var(--cream); color: var(--navy); }
+.btn:hover { background: #fff; }
+.btn.ghost { background: transparent; color: var(--cream); border: 1px solid #4a5b84; }
+.btn.ghost:hover { border-color: var(--cream); }
+.btn.red { background: var(--red); color: var(--cream); }
+.btn.sm { font-size: .7rem; padding: .45rem .7rem; }
+.btn[disabled] { opacity: .35; cursor: not-allowed; }
+.inline-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* TABLE */
+.table { position: relative; min-height: 0; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(255,214,150,.13), transparent 62%),
+    repeating-linear-gradient(92deg, rgba(0,0,0,.06) 0 2px, transparent 2px 11px),
+    repeating-linear-gradient(88deg, rgba(255,255,255,.015) 0 1px, transparent 1px 23px),
+    linear-gradient(180deg, var(--walnut), var(--walnut-2)); }
+.seats { display: flex; justify-content: center; gap: clamp(.6rem, 3vw, 3rem); padding: .75rem 1rem .35rem; }
+.seat { display: flex; flex-direction: column; align-items: center; gap: .28rem; min-width: 0; transition: transform .4s; }
+.plate { position: relative; font-family: var(--label-font); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; background: linear-gradient(#d9b96e, #a9853c); color: #2a1c08; padding: .22rem .7rem; box-shadow: 0 2px 0 #5e4718, 0 6px 14px -6px rgba(0,0,0,.7); white-space: nowrap; }
+.seat.you .plate { background: linear-gradient(#faf7f0, #d8d0bd); }
+.tok { position: absolute; left: -1.05rem; top: 50%; transform: translateY(-50%); width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .52rem; letter-spacing: .02em; font-weight: 600; color: #2a1c08; background: radial-gradient(circle at 35% 30%, #fff2c2, #d4ad55 45%, #8a6420); box-shadow: 0 2px 5px rgba(0,0,0,.6), inset 0 0 0 1px rgba(60,40,0,.5); }
+.ord { font-family: var(--label-font); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: #cbb98f; }
+.hand { display: flex; gap: .3rem; min-height: 1.6rem; justify-content: center; flex-wrap: wrap; max-width: 17rem; }
+.seat .pts { font-family: var(--label-font); font-size: .74rem; color: #f3e2b8; min-height: 1em; font-variant-numeric: tabular-nums; }
+.seat.glow .plate { box-shadow: 0 0 0 2px var(--cream), 0 0 22px rgba(255,240,200,.7); }
+.seat.asks .plate { background: linear-gradient(#e86a5a, #a92a1e); color: #fff; }
+.seat.think .plate { animation: think 1s ease-in-out infinite; }
+.seat.offer .plate { box-shadow: 0 0 0 2px #111, 0 0 0 4px var(--s-gold-hi), 0 0 24px rgba(226,196,108,.8); }
+@keyframes think { 50% { box-shadow: 0 0 0 2px var(--cream), 0 0 18px rgba(255,240,200,.75); } }
+.me { display: flex; justify-content: center; align-items: center; gap: .8rem; padding: .35rem 1rem .8rem; flex-wrap: wrap; }
+.me .seat { flex-direction: row; gap: .55rem; }
+.me .seat .pts { min-height: 0; }
+.caption { font-family: var(--label-font); font-size: .74rem; letter-spacing: .2em; text-transform: uppercase; color: #e9d9b0; text-align: center; }
+
+/* chips: a card held in hand, name only */
+.chip2 { display: inline-block; font-size: .7rem; line-height: 1; padding: .36rem .5rem .34rem; white-space: nowrap; max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 .3rem .6rem -.3rem rgba(0,0,0,.9); border: 0; }
+button.chip2 { cursor: pointer; }
+button.chip2:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.chip2.t1 { background: var(--s-ivory); color: var(--s-black); font-family: var(--f-sec); letter-spacing: .04em; box-shadow: inset 0 0 0 1px var(--s-black), inset 0 0 0 3px var(--s-ivory), inset 0 0 0 4px var(--s-gold), 0 .3rem .6rem -.3rem rgba(0,0,0,.9); padding: .42rem .6rem .38rem; }
+.chip2.t2 { background: var(--t-tape); color: var(--t-ink); font-family: var(--f-type); font-weight: 700; letter-spacing: .04em; border-left: 3px solid var(--t-red); }
+.chip2.t3 { background: var(--b-white); color: var(--b-black); font-family: var(--f-bau); font-weight: 700; text-transform: lowercase; border-left: 5px solid var(--b-red); }
+.chip2.t4 { background: var(--d-manila); color: var(--d-ink); font-family: var(--f-typed); border-top: 3px solid var(--d-red); }
+.chip2.kept { outline: 2px solid #fff; outline-offset: 1px; }
+
+/* the table surface: a canvas mat under a scrolling scene */
+.centerwrap { position: relative; min-height: 0; margin: .25rem clamp(.6rem, 2vw, 2rem) 0; border-radius: 16px; overflow: hidden; isolation: isolate; background: #1e3527; }
+.centerwrap.felt { background: radial-gradient(ellipse at 50% 40%, #27452f, var(--leather) 70%); }
+.centerwrap.dir { background: radial-gradient(ellipse at 50% 30%, #26375c, #121b30 78%); }
+.centerwrap.dir::before { content: ""; position: absolute; inset: 0; opacity: .07; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23faf7f0' stroke-width='.6'%3E%3Ccircle cx='20' cy='20' r='15'/%3E%3Ccircle cx='20' cy='20' r='6'/%3E%3Cpath d='M20 0v40M0 20h40'/%3E%3C/g%3E%3C/svg%3E") center / min(70%, 34rem) no-repeat; }
+.centerwrap::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2; border-radius: inherit; box-shadow: inset 0 0 0 2px rgba(201,166,90,.35), inset 0 0 0 7px rgba(0,0,0,.22), inset 0 0 0 8px rgba(201,166,90,.2), inset 0 14px 40px rgba(0,0,0,.4); }
+.matc { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.center { position: absolute; inset: 0; z-index: 1; overflow: auto; container-type: size; padding: 0 clamp(.6rem, 1.6vw, 1.6rem); }
+.scene { position: relative; width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .9rem; padding-block: 1rem; }
+
+/* NAME SIDE: the side that lies face up on the table */
+.nface { --w: 9rem; --fmax: 15cqi; --fk: 118cqi; position: relative; flex: none; width: var(--w); aspect-ratio: 5 / 7; container-type: inline-size; overflow: hidden; border-radius: 3px; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 1.1rem 1.6rem -1rem rgba(0,0,0,.9), 0 .15rem .35rem rgba(0,0,0,.45); transition: transform .25s, box-shadow .25s, opacity .3s; }
+.nf-name { font-size: min(var(--fmax), calc(var(--fk) / var(--L, 8))); line-height: 1.04; text-wrap: balance; overflow-wrap: normal; word-break: normal; }
+.nface.fill, .flyer > .nface, .face-back > .nface { width: 100%; height: 100%; aspect-ratio: auto; }
+.nface.sm { --w: clamp(6.4rem, 13cqi, 9.4rem); }
+.nface.dim { opacity: .55; }
+.nface.sel { box-shadow: 0 0 0 3px var(--cream), 0 0 28px rgba(255,240,200,.65), 0 1.1rem 1.6rem -1rem rgba(0,0,0,.9); }
+
+/* I · Vienna Secession */
+.nface.t1 { --fmax: 14.5cqi; --fk: 116cqi; background: var(--s-ivory); color: var(--s-black); }
+.t1 .s-in { position: absolute; inset: 4.5cqi; border: 1cqi solid var(--s-black); display: flex; flex-direction: column; align-items: center; }
+.t1 .s-chk { flex: none; width: 100%; height: 7cqi; background: repeating-conic-gradient(var(--s-black) 0 25%, var(--s-ivory) 0 50%) 0 0 / 7cqi 7cqi; }
+.t1 .s-dome { flex: none; width: 46cqi; height: auto; aspect-ratio: 100 / 70; margin-top: 6cqi; }
+.t1 .s-mid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 0 5cqi; text-align: center; }
+.t1 .s-lab { font-family: var(--f-sec2); font-size: 5.4cqi; letter-spacing: .42em; padding-left: .42em; color: var(--s-gold-dk); text-transform: uppercase; }
+.t1 .nf-name { font-family: var(--f-sec); margin-top: 2cqi; letter-spacing: .02em; }
+.t1 .s-rule { width: 38%; height: 1.3cqi; margin-top: 4cqi; background: linear-gradient(90deg, var(--s-gold), var(--s-gold-hi), var(--s-gold)); }
+.t1 .s-meta { font-family: var(--f-sec2); font-size: 4.8cqi; letter-spacing: .3em; padding-left: .3em; color: #5a4a2a; margin-bottom: 3.5cqi; }
+
+/* II · Field telegram */
+.nface.t2 { --fmax: 11.5cqi; --fk: 96cqi; color: var(--t-ink);
+  background: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(120,80,30,.18)), repeating-linear-gradient(180deg, transparent 0 9.6cqi, rgba(138,59,34,.2) 9.6cqi 10cqi) 0 52cqi / 100% calc(100% - 52cqi) no-repeat, var(--t-buff); }
+.t2 .tg-h { position: absolute; top: 6cqi; left: 6cqi; right: 6cqi; text-align: center; border-top: .9cqi solid var(--t-red); border-bottom: .45cqi solid var(--t-red); padding: 1.6cqi 0 1.4cqi; font-family: var(--body); font-weight: 700; font-size: 8.6cqi; letter-spacing: .3em; padding-left: .3em; color: var(--t-red); text-transform: uppercase; line-height: 1.1; }
+.t2 .tg-h small { display: block; font-weight: 400; font-style: italic; font-size: 4.3cqi; letter-spacing: .1em; text-transform: none; margin-top: .6cqi; }
+.t2 .tg-f { position: absolute; top: 31cqi; left: 6cqi; right: 6cqi; display: flex; justify-content: space-between; font-family: var(--body); font-style: italic; font-size: 4cqi; color: var(--t-red); border-bottom: .3cqi solid rgba(138,59,34,.55); padding-bottom: 1.2cqi; }
+.t2 .tg-tapes { position: absolute; left: 7cqi; right: 7cqi; top: 50cqi; display: flex; flex-direction: column; align-items: flex-start; gap: 3.4cqi; }
+.t2 .tape { background: var(--t-tape); font-family: var(--f-type); font-weight: 700; text-transform: uppercase; padding: 1.5cqi 2.6cqi 1.2cqi; box-shadow: 0 .5cqi 1.2cqi rgba(0,0,0,.2); }
+.t2 .tape.l { font-size: 5.2cqi; letter-spacing: .16em; transform: rotate(-1.4deg); }
+.t2 .tape.nf-name { transform: rotate(.9deg); max-width: 100%; letter-spacing: .02em; }
+.t2 .tg-stamp { position: absolute; right: 5cqi; bottom: 9cqi; width: 40cqi; aspect-ratio: 1.55; border-radius: 50%; border: .9cqi solid var(--t-violet); box-shadow: inset 0 0 0 1.3cqi var(--t-buff), inset 0 0 0 1.8cqi var(--t-violet); color: var(--t-violet); font-family: var(--label-font); font-weight: 600; font-size: 4.6cqi; letter-spacing: .08em; text-transform: uppercase; display: grid; place-items: center; text-align: center; line-height: 1.12; transform: rotate(-14deg); opacity: .7; }
+.t2 .tg-foot { position: absolute; left: 7cqi; bottom: 6cqi; font-family: var(--f-type); font-size: 4.6cqi; letter-spacing: .1em; }
+
+/* III · Bauhaus */
+.nface.t3 { --fmax: 15cqi; --fk: 124cqi; background: var(--b-white); color: var(--b-black); font-family: var(--f-bau); }
+.t3 .b-c { position: absolute; width: 70cqi; aspect-ratio: 1; border-radius: 50%; background: var(--b-red); top: -15cqi; right: -17cqi; }
+.t3 .b-bar { position: absolute; left: 9cqi; top: 0; bottom: 0; width: 5cqi; background: var(--b-black); }
+.t3 .b-sq { position: absolute; left: 19cqi; top: 56cqi; width: 12cqi; aspect-ratio: 1; background: var(--b-yellow); }
+.t3 .b-ln { position: absolute; left: 33cqi; right: 7cqi; top: 61cqi; height: 1cqi; background: var(--b-blue); }
+.t3 .b-meta { position: absolute; top: 6cqi; left: 19cqi; font-size: 5cqi; font-weight: 500; letter-spacing: .08em; }
+.t3 .b-txt { position: absolute; left: 19cqi; right: 6cqi; bottom: 8cqi; }
+.t3 .b-lab { font-size: 5.6cqi; font-weight: 500; letter-spacing: .06em; }
+.t3 .nf-name { font-weight: 800; text-transform: lowercase; letter-spacing: -.01em; margin-top: .5cqi; line-height: .98; }
+
+/* IV · Allied intelligence file */
+.nface.t4 { --fmax: 12cqi; --fk: 100cqi; color: var(--d-ink); background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(110,80,30,.22)), linear-gradient(172deg, #e6cf9b, #d5b97c); }
+.t4 .d-holes { position: absolute; left: 4cqi; top: 30%; width: 4.5cqi; height: 40%; background: radial-gradient(circle at 50% 2.25cqi, #3b2c17 1.6cqi, rgba(0,0,0,.25) 1.9cqi, transparent 2.2cqi) top / 100% 50% repeat-y; }
+.t4 .d-head { position: absolute; top: 5cqi; left: 11cqi; right: 6cqi; display: flex; justify-content: space-between; font-family: var(--f-typed); font-size: 5cqi; letter-spacing: .06em; text-transform: uppercase; border-bottom: .5cqi double rgba(35,28,16,.7); padding-bottom: 1.6cqi; }
+.t4 .d-label { position: absolute; left: 11cqi; right: 7cqi; top: 34cqi; background: #fbf8ef; border: .4cqi solid rgba(35,28,16,.55); padding: 3cqi 3.5cqi 3.6cqi; box-shadow: 0 .6cqi 1.4cqi rgba(0,0,0,.18); }
+.t4 .d-label span { display: block; font-family: var(--f-typed); font-size: 4.6cqi; letter-spacing: .2em; text-transform: uppercase; color: #5a4a2a; }
+.t4 .d-label .nf-name { display: block; font-family: var(--f-typed); font-weight: 400; margin-top: 1.4cqi; letter-spacing: .02em; }
+.t4 .d-stamp { position: absolute; right: 6cqi; top: 15cqi; font-family: var(--f-stencil); font-weight: 800; font-size: 8cqi; letter-spacing: .06em; text-transform: uppercase; color: var(--d-red); border: .8cqi solid var(--d-red); padding: .6cqi 2.4cqi .2cqi; transform: rotate(-9deg); opacity: .82; mix-blend-mode: multiply; }
+.t4 .d-route { position: absolute; left: 11cqi; right: 6cqi; bottom: 6cqi; display: grid; grid-template-columns: 1fr 1fr; font-family: var(--f-typed); font-size: 4cqi; letter-spacing: .1em; text-transform: uppercase; color: #5a4a2a; }
+.t4 .d-route span { border-top: .3cqi solid rgba(35,28,16,.5); padding-top: 1cqi; height: 9cqi; }
+.t4 .d-route span + span { border-left: .3cqi solid rgba(35,28,16,.5); padding-left: 2cqi; }
+.nface.held::after { content: "Held back"; position: absolute; left: -30%; right: -30%; top: 47%; transform: rotate(-28deg); background: #111; color: var(--s-gold-hi); text-align: center; font-family: var(--label-font); font-weight: 600; letter-spacing: .34em; text-transform: uppercase; font-size: 6.2cqi; padding: 1.8cqi 0; box-shadow: 0 0 0 .6cqi var(--s-gold); }
+
+/* TEXT SIDE: mission and complication */
+.tcard { --cs: clamp(11px, min(8px + .6vw, 2px + 1.45vh), 20px); font-size: var(--cs); position: relative; overflow: hidden; width: min(100%, 35rem); display: flex; flex-direction: column; gap: .7em; padding: 1.4em 1.5em 1.05em;
+  box-shadow: 0 1.6em 2.8em -1.4em rgba(0,0,0,.85), 0 .2em .5em rgba(0,0,0,.35); }
+.tc-op { position: relative; }
+.tc-lab { font-size: .6em; letter-spacing: .32em; text-transform: uppercase; }
+.tc-name { font-size: 1.9em; line-height: 1.06; font-weight: 400; overflow-wrap: anywhere; }
+.tc-var { font-style: italic; font-size: .78em; margin-top: .25em; }
+.tc-series { font-size: .56em; letter-spacing: .22em; text-transform: uppercase; margin-top: .45em; opacity: .85; }
+.tc-sec { font-size: .62em; letter-spacing: .26em; text-transform: uppercase; font-weight: 600; margin-bottom: .45em; padding-bottom: .28em; }
+.tc-txt { font-size: .92em; line-height: 1.6; }
+.tc-comp { position: relative; padding: .7em .85em .8em; transition: box-shadow .4s, background .4s; }
+.tc-foot { margin-top: auto; text-align: center; font-size: .54em; letter-spacing: .22em; text-transform: uppercase; padding-top: .55em; }
+.tcard.hl-comp .tc-comp { box-shadow: 0 0 0 3px rgba(192,57,43,.6), 0 0 26px rgba(192,57,43,.45); }
+
+.tcard.t1 { background: var(--s-ivory); color: var(--s-black); font-family: var(--body); padding: 2.1em 1.9em 1.5em;
+  box-shadow: inset 0 0 0 .55em var(--s-ivory), inset 0 0 0 .66em var(--s-black), inset 0 0 0 .82em var(--s-ivory), inset 0 0 0 .88em var(--s-gold), 0 1.6em 2.8em -1.4em rgba(0,0,0,.85), 0 .2em .5em rgba(0,0,0,.35); }
+.tcard.t1::before { content: ""; position: absolute; left: .88em; right: .88em; top: .88em; height: .5em; background: repeating-conic-gradient(var(--s-black) 0 25%, var(--s-ivory) 0 50%) 0 0 / .5em .5em; }
+.tcard.t1::after { content: ""; position: absolute; left: .88em; right: .88em; bottom: .88em; height: .5em; background: repeating-conic-gradient(var(--s-black) 0 25%, var(--s-ivory) 0 50%) 0 0 / .5em .5em; }
+.tcard.t1 .tc-head { text-align: center; font-family: var(--f-sec2); font-size: .62em; letter-spacing: .34em; text-transform: uppercase; color: var(--s-gold-dk); border-bottom: 1px solid var(--s-black); padding-bottom: .6em; }
+.tcard.t1 .tc-op { text-align: center; }
+.tcard.t1 .tc-name { font-family: var(--f-sec); }
+.tcard.t1 .tc-lab, .tcard.t1 .tc-series, .tcard.t1 .tc-sec, .tcard.t1 .tc-foot { font-family: var(--f-sec2); color: var(--s-gold-dk); }
+.tcard.t1 .tc-sec { border-bottom: 1px solid var(--s-gold); }
+.tcard.t1 .tc-var { color: #5a4a2a; }
+.tcard.t1 .tc-comp { background: #e9dfc2; border-left: .3em solid var(--s-black); }
+.tcard.t1 .tc-foot { border-top: 1px solid var(--s-black); }
+
+.tcard.t2 { color: var(--t-ink); font-family: var(--f-type); background: repeating-linear-gradient(180deg, transparent 0 1.58em, rgba(138,59,34,.12) 1.58em 1.64em), var(--t-buff); }
+.tcard.t2 .tc-head { text-align: center; color: var(--t-red); border-top: .22em solid var(--t-red); border-bottom: .1em solid var(--t-red); padding: .4em 0 .35em; }
+.tcard.t2 .tc-head b { display: block; font-family: var(--body); font-size: 1.15em; letter-spacing: .32em; padding-left: .32em; text-transform: uppercase; }
+.tcard.t2 .tc-head span { display: block; font-family: var(--body); font-style: italic; font-size: .62em; letter-spacing: .08em; }
+.tcard.t2 .tc-stamp { position: absolute; right: .9em; top: 3.6em; width: 7.4em; aspect-ratio: 1.55; border-radius: 50%; border: .16em solid var(--t-violet); box-shadow: inset 0 0 0 .22em var(--t-buff), inset 0 0 0 .3em var(--t-violet); color: var(--t-violet); font-family: var(--label-font); font-weight: 600; font-size: .7em; letter-spacing: .08em; text-transform: uppercase; display: grid; place-items: center; text-align: center; line-height: 1.1; transform: rotate(-12deg); opacity: .6; pointer-events: none; }
+.tcard.t2 .tc-lab { font-family: var(--body); color: var(--t-red); }
+.tcard.t2 .tc-name { display: inline-block; background: var(--t-tape); font-weight: 700; text-transform: uppercase; font-size: 1.55em; padding: .18em .4em .1em; margin-top: .25em; box-shadow: 0 .1em .3em rgba(0,0,0,.18); transform: rotate(-.7deg); }
+.tcard.t2 .tc-var, .tcard.t2 .tc-series { font-family: var(--body); color: var(--t-red); }
+.tcard.t2 .tc-sec { font-family: var(--body); color: var(--t-red); border-bottom: 1px solid rgba(138,59,34,.5); }
+.tcard.t2 .tc-txt { font-size: .9em; line-height: 1.58; }
+.tcard.t2 .tc-comp { background: rgba(251,247,234,.75); border-left: .3em solid var(--t-red); }
+.tcard.t2 .tc-foot { font-family: var(--f-type); border-top: 1px solid rgba(138,59,34,.5); }
+
+.tcard.t3 { background: var(--b-white); color: var(--b-black); font-family: var(--f-bau); padding-left: 2.6em; }
+.tcard.t3::before { content: ""; position: absolute; left: .95em; top: 0; bottom: 0; width: .6em; background: var(--b-black); }
+.tcard.t3::after { content: ""; position: absolute; width: 6em; aspect-ratio: 1; border-radius: 50%; background: var(--b-red); right: -2em; top: -2em; }
+.tcard.t3 .tc-head { font-size: .66em; font-weight: 500; letter-spacing: .08em; }
+.tcard.t3 .tc-lab { font-weight: 500; letter-spacing: .1em; text-transform: lowercase; font-size: .7em; }
+.tcard.t3 .tc-name { font-weight: 800; text-transform: lowercase; font-size: 2.05em; letter-spacing: -.01em; }
+.tcard.t3 .tc-var { font-style: normal; font-weight: 500; }
+.tcard.t3 .tc-sec { font-weight: 700; display: flex; align-items: center; gap: .55em; }
+.tcard.t3 .tc-sec::before { content: ""; width: .8em; height: .8em; background: var(--b-yellow); flex: none; }
+.tcard.t3 .tc-txt { font-size: .98em; line-height: 1.55; }
+.tcard.t3 .tc-comp { background: var(--b-black); color: var(--b-white); }
+.tcard.t3 .tc-comp .tc-sec::before { background: var(--b-red); }
+.tcard.t3 .tc-foot { text-align: left; font-weight: 500; border-top: .25em solid var(--b-black); }
+
+.tcard.t4 { background: var(--d-paper); color: var(--d-ink); font-family: var(--body); padding: 1.7em 1.8em 1.3em;
+  box-shadow: inset 0 0 0 .6em var(--d-manila), inset 0 0 0 .68em var(--d-manila-dk), 0 1.6em 2.8em -1.4em rgba(0,0,0,.85), 0 .2em .5em rgba(0,0,0,.35); }
+.tcard.t4 .tc-head { display: flex; justify-content: space-between; gap: 1em; font-family: var(--f-typed); font-size: .66em; letter-spacing: .08em; text-transform: uppercase; border-bottom: 3px double rgba(35,28,16,.7); padding-bottom: .5em; }
+.tcard.t4 .tc-stamp { position: absolute; right: 1.4em; top: 3.3em; font-family: var(--f-stencil); font-weight: 800; font-size: 1.15em; letter-spacing: .06em; text-transform: uppercase; color: var(--d-red); border: .14em solid var(--d-red); padding: .1em .45em 0; transform: rotate(-8deg); opacity: .78; mix-blend-mode: multiply; pointer-events: none; }
+.tcard.t4 .tc-lab, .tcard.t4 .tc-sec, .tcard.t4 .tc-series, .tcard.t4 .tc-foot { font-family: var(--f-typed); font-weight: 400; color: #4a3b22; }
+.tcard.t4 .tc-name { font-family: var(--f-typed); font-size: 1.75em; }
+.tcard.t4 .tc-sec { text-decoration: underline; text-underline-offset: .25em; letter-spacing: .2em; }
+.tcard.t4 .tc-txt { font-size: .9em; }
+.tcard.t4 .tc-comp { background: #fbf1ea; border: 1px solid rgba(179,38,30,.45); border-left: .3em solid var(--d-red); }
+.tcard.t4 .tc-foot { border-top: 1px solid rgba(35,28,16,.4); }
+
+.flip { perspective: 1600px; width: min(100%, 35rem); flex: 0 1 35rem; min-width: 0; }
+.flip-inner { position: relative; transition: transform .85s cubic-bezier(.2,.75,.2,1); transform-style: preserve-3d; }
+.flip-inner > * { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip-inner > .tcard { width: 100%; }
+.flip-inner > .face-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+.flip.down .flip-inner { transform: rotateY(180deg); }
+.face-back > .nface { --fmax: 13cqi; border-radius: 3px; box-shadow: 0 1.6em 2.8em -1.4em rgba(0,0,0,.85); }
+
+.deal { animation: deal .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes deal { from { transform: translateY(-50px) rotate(-8deg) scale(1.08); opacity: 0; } }
+.rise { animation: rise .55s ease both; }
+@keyframes rise { from { transform: translateY(14px); opacity: 0; } }
+.shake { animation: shake .45s ease; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px) rotate(-2deg); } 40%, 80% { transform: translateX(6px) rotate(2deg); } }
+.flyer { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform-origin: 0 0; will-change: transform; }
+
+/* cartouche: time and place of the round */
+.cart { position: relative; flex: none; text-align: center; max-width: 100%; }
+.cart .k { font-size: .62rem; letter-spacing: .3em; text-transform: uppercase; }
+.cart .p { font-size: clamp(1.05rem, .8rem + 1vw, 1.45rem); line-height: 1.1; }
+.cart .y { font-size: .86rem; letter-spacing: .26em; }
+.cart .w { font-size: .66rem; letter-spacing: .08em; margin-top: .25rem; opacity: .9; }
+.cart.t1 { background: #13120e; color: var(--s-gold-hi); font-family: var(--f-sec); padding: .5rem 1.6rem .55rem; border: 1px solid var(--s-gold); box-shadow: 0 0 0 4px #13120e, 0 0 0 5px rgba(180,138,44,.65), 0 10px 26px -10px #000; }
+.cart.t1 .k, .cart.t1 .w { font-family: var(--f-sec2); color: #cfb46a; }
+.cart.t1 .p { letter-spacing: .14em; text-transform: uppercase; }
+.cart.t2 { background: var(--t-tape); color: var(--t-ink); font-family: var(--f-type); padding: .45rem 1.1rem .4rem; transform: rotate(-.6deg); box-shadow: 0 8px 18px -8px #000; border-left: 4px solid var(--t-red); text-align: left; }
+.cart.t2 .k { color: var(--t-red); font-family: var(--body); font-weight: 700; }
+.cart.t2 .p { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.cart.t2 .y { font-weight: 700; }
+.cart.t3 { background: var(--b-black); color: var(--b-white); font-family: var(--f-bau); padding: .45rem 1.2rem .45rem 3.4rem; text-align: left; box-shadow: 0 8px 18px -8px #000; }
+.cart.t3::before { content: ""; position: absolute; left: .7rem; top: 50%; width: 2rem; height: 2rem; margin-top: -1rem; border-radius: 50%; background: var(--b-red); }
+.cart.t3::after { content: ""; position: absolute; left: 1.95rem; top: 50%; width: .9rem; height: .9rem; background: var(--b-yellow); }
+.cart.t3 .k { font-weight: 500; letter-spacing: .14em; text-transform: lowercase; }
+.cart.t3 .p { font-weight: 800; text-transform: lowercase; }
+.cart.t3 .y { font-weight: 700; letter-spacing: .1em; }
+.cart.t4 { background: #e9dfc0; color: var(--d-ink); font-family: var(--f-typed); padding: .45rem 1.3rem .45rem; border: 1px solid var(--d-ink); box-shadow: 0 8px 18px -8px #000; }
+.cart.t4 .p { text-transform: uppercase; letter-spacing: .06em; }
+.cart.t4 .st { position: absolute; right: -.9rem; top: -.75rem; font-family: var(--f-stencil); font-weight: 800; font-size: .78rem; letter-spacing: .06em; color: var(--d-red); border: 2px solid var(--d-red); padding: .05rem .4rem 0; transform: rotate(8deg); background: rgba(233,223,192,.85); }
+.cart.small { transform: none; padding-top: .3rem; padding-bottom: .3rem; }
+.cart.small .w { display: none; }
+
+/* the spread */
+.spread { --cw: clamp(5.6rem, min(calc((100cqi - 6.5rem) / 5), calc((100cqb - 9.5rem) / 2.9)), 10.5rem); --gap: clamp(.5rem, 1.7cqi, 1.3rem); display: grid; grid-template-columns: repeat(5, var(--cw)); gap: var(--gap); justify-content: center; }
+.sl { position: relative; width: var(--cw); aspect-ratio: 5 / 7; border-radius: 4px; }
+.sl.empty { outline: 1px dashed rgba(255,255,255,.25); outline-offset: -2px; background: rgba(0,0,0,.12); }
+.sl > .nface { --w: 100%; transform: rotate(var(--rot, 0deg)); }
+.spread.live .sl > .nface:not(.held) { cursor: pointer; }
+.spread.live .sl > .nface:not(.held):hover, .spread.live .sl > .nface:not(.held):focus-visible { transform: translateY(-7px) rotate(0deg); box-shadow: 0 0 0 3px var(--cream), 0 0 30px rgba(255,240,200,.6), 0 1.4rem 1.8rem -1rem rgba(0,0,0,.9); outline: none; }
+.spread.live::after { content: ""; }
+.sl .heldcap { position: absolute; left: 0; right: 0; bottom: -1.35rem; text-align: center; font-family: var(--label-font); font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: #e8dfc0; }
+@container (max-width: 600px) {
+  .spread { --cw: clamp(5.2rem, calc((100cqi - 2.2rem) / 3), 8.4rem); grid-template-columns: repeat(3, var(--cw)); }
+}
+
+/* fan, ring, rotation strip */
+.fan { display: flex; justify-content: center; align-items: flex-end; padding: 1rem 2rem 0; }
+.fan > .nface { --w: clamp(6.6rem, 17cqi, 11rem); margin: 0 calc(var(--w) * -.12); }
+.ring { position: relative; width: min(100%, 30rem); aspect-ratio: 2.2; }
+.envelope { position: absolute; left: 50%; top: 50%; width: 11rem; aspect-ratio: 1.6; transform: translate(-50%, -50%) rotate(-3deg); background: #e9dfc6; box-shadow: 0 1rem 2rem -1rem rgba(0,0,0,.8); display: grid; place-items: center; text-align: center; }
+.envelope::before { content: ""; position: absolute; inset: 0; background: linear-gradient(155deg, transparent 49.5%, rgba(0,0,0,.12) 50%, transparent 51%), linear-gradient(25deg, transparent 49.5%, rgba(0,0,0,.12) 50%, transparent 51%); }
+.envelope .st { position: relative; font-family: var(--label-font); font-weight: 600; letter-spacing: .2em; color: var(--red); border: 2px solid var(--red); padding: .2rem .6rem; transform: rotate(-8deg); font-size: .78rem; }
+.envelope small { position: absolute; bottom: .5rem; left: 0; right: 0; font-family: var(--label-font); font-size: .58rem; letter-spacing: .2em; color: #6b5a40; text-transform: uppercase; }
+.rot { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; width: min(100%, 40rem); }
+.rot > div { background: rgba(0,0,0,.28); padding: .55rem .5rem .6rem; text-align: center; font-family: var(--label-font); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: #e9d9b0; display: grid; gap: .35rem; justify-items: center; }
+.rot > div b { color: #fff; font-weight: 600; letter-spacing: .2em; }
+
+/* rows of kept cards, ballot */
+.row { display: flex; flex-wrap: wrap; gap: clamp(.6rem, 1.8cqi, 1.5rem); justify-content: center; align-items: flex-start; }
+.pitched { position: relative; display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+.pitched .who { font-family: var(--label-font); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: #f3e2b8; text-align: center; background: rgba(8,12,22,.7); padding: .15rem .45rem; }
+.pitched .who small { display: block; color: rgba(243,226,184,.7); letter-spacing: .12em; font-size: .9em; }
+.pitched[data-vote] .nface { cursor: pointer; }
+.pitched[data-vote] .nface:hover { transform: translateY(-4px); }
+.readbtn { font-family: var(--label-font); font-size: .62rem; letter-spacing: .18em; text-transform: uppercase; background: rgba(0,0,0,.35); border: 1px solid rgba(243,226,184,.35); color: #f3e2b8; padding: .22rem .55rem; cursor: pointer; }
+.readbtn:hover { border-color: #f3e2b8; }
+.rankbadge { position: absolute; top: -.7rem; right: -.7rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--red); color: var(--cream); display: grid; place-items: center; font-family: var(--label-font); font-weight: 600; font-size: .78rem; line-height: 1; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,.5); z-index: 5; }
+.rankbadge small { display: block; font-size: .56rem; letter-spacing: .08em; font-weight: 400; }
+.ballot-form { background: var(--cream); color: var(--ink); width: min(100%, 34rem); padding: .9rem 1.2rem; box-shadow: 0 1rem 2rem -1rem rgba(0,0,0,.8); position: relative; }
+.ballot-form h3 { font-family: var(--label-font); font-weight: 600; font-size: .72rem; letter-spacing: .26em; text-transform: uppercase; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: .35rem; display: flex; justify-content: space-between; gap: 1rem; }
+.ballot-form ol { list-style: none; margin-top: .5rem; display: grid; gap: .3rem; }
+.ballot-form li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) 3rem; gap: .5rem; align-items: baseline; border-bottom: 1px dotted var(--tan); padding: .22rem 0; font-size: .9rem; }
+.ballot-form li .r { font-family: var(--label-font); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--label); }
+.ballot-form li .p { text-align: right; font-family: var(--label-font); color: var(--red); }
+.ballot-form .blank { color: #a49a84; font-style: italic; }
+.ballot-form .inline-actions .btn.ghost { color: var(--navy); border-color: var(--tan); }
+.stamp { position: absolute; font-family: var(--label-font); font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--red); border: 3px solid var(--red); padding: .25rem .7rem; transform: rotate(-10deg); opacity: .88; mix-blend-mode: multiply; pointer-events: none; animation: stamp .35s cubic-bezier(.3,1.6,.5,1) both; z-index: 6; }
+@keyframes stamp { from { transform: rotate(-10deg) scale(2.2); opacity: 0; } }
+
+/* tally */
+.tally { width: min(100%, 46rem); display: grid; gap: .55rem; }
+.tally .line { display: grid; grid-template-columns: 12rem minmax(0, 1fr) 3.4rem; gap: .8rem; align-items: center; }
+.tally .name { font-family: var(--label-font); letter-spacing: .16em; text-transform: uppercase; font-size: .8rem; color: #f3e2b8; }
+.tally .name small { display: block; font-family: var(--display); font-style: italic; letter-spacing: 0; text-transform: none; font-size: .85rem; color: var(--cream); }
+.tally .bar { height: 1.3rem; background: rgba(0,0,0,.35); position: relative; overflow: hidden; }
+.tally .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #a9853c, #e6c77a); transition: width .8s cubic-bezier(.2,.8,.2,1); width: 0; }
+.tally .tot { font-family: var(--display); font-weight: 700; font-size: 1.5rem; text-align: right; font-variant-numeric: tabular-nums; }
+.tally .line.win .name, .tally .line.win .tot { color: #fff; }
+.tally .line.win .bar i { background: linear-gradient(90deg, #8b0000, #d0503f); }
+.tally .adv { position: relative; display: inline-block; margin-left: .5rem; font-family: var(--label-font); font-weight: 600; font-size: .62rem; letter-spacing: .18em; color: #ff9c8c; border: 2px solid #ff9c8c; padding: .05rem .4rem; transform: rotate(-6deg); vertical-align: middle; animation: stamp .35s cubic-bezier(.3,1.6,.5,1) both; animation-delay: .7s; }
+.ballots { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.slip { background: var(--cream); color: var(--ink); font-size: .72rem; padding: .45rem .6rem; min-width: 10.5rem; box-shadow: 0 .5rem 1rem -.6rem rgba(0,0,0,.8); font-family: var(--label-font); letter-spacing: .06em; }
+.slip b { display: block; font-weight: 600; letter-spacing: .2em; font-size: .64rem; color: var(--navy); border-bottom: 1px solid var(--tan); margin-bottom: .2rem; text-transform: uppercase; }
+.slip.rand b::after { content: " · sample"; color: var(--red); letter-spacing: .1em; }
+.panel { background: rgba(8,12,22,.8); border: 1px solid rgba(201,166,90,.35); padding: .9rem 1rem 1rem; width: min(100%, 46rem); }
+.panel .tally { width: 100%; }
+
+/* timer */
+.pitchwrap { display: flex; gap: clamp(1rem, 2.5vw, 2rem); align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; }
+.pitchwrap > .tcard { flex: 0 1 35rem; min-width: 0; }
+.side { display: flex; flex-direction: column; gap: 1rem; align-items: center; background: rgba(8,12,22,.66); padding: .9rem; border: 1px solid rgba(201,166,90,.3); }
+.side .timer { flex-direction: column; }
+.side .inline-actions { flex-direction: column; align-items: stretch; }
+.timer { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; justify-content: center; }
+.dial { position: relative; width: 5.2rem; height: 5.2rem; }
+.dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dial .t { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--label-font); font-size: 1.25rem; font-variant-numeric: tabular-nums; color: var(--cream); }
+.dial.zero .t { color: #ff8a7a; }
+.timer .btn.ghost { background: rgba(0,0,0,.35); }
+
+/* bracket / field */
+.bracket { width: min(100%, 52rem); display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 15rem); gap: 1rem; align-items: center; }
+.rounds { display: grid; gap: .4rem; }
+.rslot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .8rem; align-items: center; background: rgba(0,0,0,.3); padding: .35rem .6rem; border-left: 3px solid var(--seg, var(--gold)); }
+.rslot .ms { display: flex; gap: .2rem; min-width: 3rem; }
+.rslot .ms .nface { --w: 3rem; box-shadow: 0 .3rem .6rem -.3rem #000; }
+.rslot .ms .nface + .nface { --w: 2.2rem; }
+.rslot .rt { font-family: var(--label-font); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: #f3e2b8; line-height: 1.45; }
+.rslot .rt b { display: block; font-family: var(--display); font-size: 1rem; letter-spacing: 0; text-transform: none; color: var(--cream); }
+.arrow { font-family: var(--display); font-size: 2rem; color: var(--gold); }
+.finalbox { background: var(--cream); color: var(--navy); padding: .9rem 1rem; box-shadow: 0 1rem 2rem -1rem rgba(0,0,0,.8); }
+.finalbox h4 { font-family: var(--label-font); font-weight: 600; letter-spacing: .26em; font-size: .72rem; text-transform: uppercase; border-bottom: 2px solid var(--navy); padding-bottom: .3rem; }
+.finalbox ul { list-style: none; margin-top: .4rem; display: grid; gap: .35rem; }
+.finalbox li { font-size: .8rem; line-height: 1.35; color: var(--ink); border-bottom: 1px dotted var(--tan); padding-bottom: .3rem; }
+.finalbox li b { font-family: var(--label-font); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; font-size: .72rem; color: var(--navy); }
+.finalbox li i { color: var(--red); font-style: italic; }
+.passrow { display: flex; align-items: center; gap: .8rem; justify-content: center; flex-wrap: wrap; font-family: var(--label-font); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: #f3e2b8; }
+.passrow .lane { position: relative; width: 12rem; height: 2rem; border-bottom: 1px dashed rgba(243,226,184,.4); }
+.passrow .lane .chip2 { position: absolute; left: 0; bottom: .3rem; animation: pass 2.8s ease-in-out infinite; }
+@keyframes pass { 0%, 15% { left: 0; } 60%, 100% { left: calc(100% - 7rem); } }
+.choice { display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center; margin-top: .7rem; }
+.choice .opt { display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+.choice .opt { width: 5.4rem; }
+.choice .nface { --w: 4.4rem; }
+.bracket.decide { grid-template-columns: minmax(0, 1fr) auto minmax(0, 20rem); }
+.finalbox .caption { color: var(--label); font-size: .64rem; }
+.finalbox .btn.ghost { color: var(--navy); border-color: var(--tan); }
+.finalbox .btn.sm { font-size: .62rem; padding: .35rem .5rem; width: 100%; }
+.coin { width: 3.4rem; height: 3.4rem; border-radius: 50%; display: grid; place-items: center; font-family: var(--label-font); font-weight: 600; font-size: .7rem; color: #2a1c08; background: radial-gradient(circle at 35% 30%, #fff2c2, #d4ad55 45%, #8a6420); box-shadow: 0 4px 12px rgba(0,0,0,.6); }
+.coin.spin { animation: coin .25s linear infinite; }
+@keyframes coin { 50% { transform: scaleX(.1); } }
+.funded { position: relative; display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+.funded .stamp { position: absolute; right: -1.2rem; top: 1.2rem; font-size: 1.1rem; background: rgba(250,247,240,.4); }
+
+/* modal */
+.modal { position: fixed; inset: 0; background: #0c101a; z-index: 40; display: flex; flex-direction: column; }
+.modal[hidden] { display: none !important; }
+.modal-bar { display: flex; align-items: center; gap: .6rem; padding: calc(env(safe-area-inset-top, 0px) + .7rem) max(14px, env(safe-area-inset-right, 0px)) .7rem max(14px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid #2b3a5e; background: #111a2e; flex-wrap: wrap; }
+.modal-bar .ttl { font-family: var(--label-font); letter-spacing: .24em; text-transform: uppercase; font-size: .78rem; margin-right: auto; }
+.modal-body { flex: 1; overflow: auto; padding: 1.4rem max(14px, env(safe-area-inset-right, 0px)) 2rem max(14px, env(safe-area-inset-left, 0px)); container-type: inline-size; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 1.4rem 1.1rem; justify-items: center; max-width: 72rem; margin: 0 auto; }
+.grid .nface { --w: 9.5rem; cursor: pointer; }
+.grid .nface:hover { transform: translateY(-4px); }
+.phase-h { grid-column: 1 / -1; justify-self: stretch; font-family: var(--label-font); letter-spacing: .22em; text-transform: uppercase; font-size: .78rem; color: #f3e2b8; border-bottom: 1px solid #3a4b74; padding-bottom: .35rem; margin-top: .6rem; display: flex; justify-content: space-between; gap: 1rem; }
+.phase-h span { color: #9fb0d6; letter-spacing: .14em; }
+.viewer { display: flex; flex-wrap: wrap; gap: 1.6rem; justify-content: center; align-items: flex-start; min-height: 100%; }
+.viewer .opt { display: flex; flex-direction: column; align-items: center; gap: .8rem; width: min(100%, 35rem); }
+.viewer .opt .flip { width: 100%; }
+.viewer .tcard { --cs: clamp(11px, min(8px + .55vw, 2px + 1.6vh), 19px); }
+.viewer.two .tcard { --cs: clamp(10.5px, min(6px + .5vw, 2px + 1.5vh), 17px); }
+.viewer .hint { width: 100%; text-align: center; font-family: var(--label-font); font-size: .74rem; letter-spacing: .2em; text-transform: uppercase; color: #e9d9b0; }
+.chip { font-family: var(--label-font); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; border: 1px solid #3a4b74; background: transparent; color: #dfe5f2; padding: .32rem .6rem; cursor: pointer; }
+.chip.on { background: var(--cream); color: var(--navy); border-color: var(--cream); }
+
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100%; }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .table { order: -1; height: 82vh; min-height: 34rem; }
+  .brief { border-right: 0; border-top: 1px solid #2b3a5e; }
+  .brand span { display: none; }
+  .bracket { grid-template-columns: minmax(0, 1fr); }
+  .bracket .arrow { transform: rotate(90deg); justify-self: center; }
+  .rot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .stepper { display: none; }
+  .brand { margin-right: auto; letter-spacing: .18em; }
+  .seats { gap: .5rem; padding-inline: .4rem; }
+  .plate { font-size: .62rem; letter-spacing: .12em; padding: .2rem .45rem; }
+  .chip2 { font-size: .6rem; max-width: 6.4rem; }
+  .tally .line { grid-template-columns: 6.2rem minmax(0, 1fr) 2.6rem; }
+  .ord { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gild" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eed57f"/><stop offset=".5" stop-color="#a87b22"/><stop offset="1" stop-color="#e9cf7d"/></linearGradient>
+    <pattern id="leaf" width="4.4" height="4.4" patternUnits="userSpaceOnUse"><circle cx="2.2" cy="2.2" r="1.1" fill="#4e370c" opacity=".5"/></pattern>
+    <symbol id="dome" viewBox="0 0 100 70">
+      <circle cx="50" cy="31" r="23" fill="url(#gild)"/>
+      <circle cx="50" cy="31" r="23" fill="url(#leaf)"/>
+      <rect x="20" y="42" width="60" height="27" fill="#15130f"/>
+      <rect x="20" y="20" width="8" height="49" fill="#15130f"/><rect x="72" y="20" width="8" height="49" fill="#15130f"/>
+      <rect x="19" y="17" width="10" height="3" fill="#b48a2c"/><rect x="71" y="17" width="10" height="3" fill="#b48a2c"/>
+      <rect x="33" y="49" width="34" height="2.4" fill="#c9a54a"/>
+      <rect x="45" y="55" width="10" height="14" fill="#f2e9d0"/>
+    </symbol>
+  </defs>
+</svg>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><b>Mission Dossiers</b><span> · Temporal Intelligence Directorate</span></div>
+    <nav class="stepper" id="stepper" aria-label="Walkthrough steps"></nav>
+    <button class="tbtn" type="button" id="deckBtn">Deck · 40</button>
+    <button class="tbtn" type="button" id="essayBtn">Essay</button>
+  </header>
+  <div class="main">
+    <aside class="brief">
+      <div class="brief-scroll" id="brief" aria-live="polite"></div>
+      <div class="nav">
+        <span class="count" id="count">1 / 18</span>
+        <button class="btn ghost" type="button" id="prev">Back</button>
+        <button class="btn" type="button" id="next">Next</button>
+      </div>
+    </aside>
+    <section class="table" aria-label="The table">
+      <div class="seats" id="seats"></div>
+      <div class="centerwrap felt" id="centerwrap"><canvas class="matc" id="matc" aria-hidden="true"></canvas><div class="center" id="center"><div class="scene" id="scene"></div></div></div>
+      <div class="me" id="me"></div>
+    </section>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-bar"><span class="ttl" id="modalTitle">The deck</span><span id="modalChips"></span><button class="tbtn" type="button" id="modalClose">Close</button></div>
+  <div class="modal-body" id="modalBody"></div>
+</div>
+<div id="ghosts" aria-hidden="true"></div>
+
+<script id="cards-data" type="application/json">{
+  "_meta": {
+    "title": "Don't Kill Hitler — Mission Dossiers",
+    "version": "v3-print (March 2026, as approved by John Giebfried and printed for class on Mar 9, 2026)",
+    "source": "claude.ai chat 'First rule of time travel game design', CARDS array of dkh_printable_cards.html",
+    "note": "Canonical text. Do NOT silently edit. Fact-check flags live in 03_CARD_DECK.md; apply fixes only after John approves them.",
+    "phases": {
+      "1": {
+        "name": "Childhood",
+        "label": "Phase I · Childhood · 1848–1913",
+        "color": "#6b4c2a"
+      },
+      "2": {
+        "name": "Young Adulthood",
+        "label": "Phase II · Young Adulthood · 1907–1919",
+        "color": "#1a4a6b"
+      },
+      "3": {
+        "name": "Rise to Power",
+        "label": "Phase III · Rise to Power · 1919–1933",
+        "color": "#2a5c3a"
+      },
+      "4": {
+        "name": "In Power",
+        "label": "Phase IV · In Power · 1933–1945",
+        "color": "#6b1a1a"
+      }
+    },
+    "changelog": [
+      "Oct 2026: duplicate operation names split for the face-up table draft, with John's approval in principle (names to confirm): card 2 CRADLE -> FOUNDLING, card 3 CRADLE -> LODGER, card 13 STILL LIFE -> BUENOS AIRES, card 14 STILL LIFE -> COMMISSION. Cards 1 and 12 keep CRADLE and STILL LIFE. New field 'series' records the original family on all six. Mission, complication and variant text unchanged."
+    ]
+  },
+  "cards": [
+    {
+      "id": 1,
+      "phase": 1,
+      "op": "CRADLE",
+      "series": "CRADLE",
+      "variant": "Variant A · Direct Action",
+      "mission": "You're the attending midwife in Braunau am Inn, April 20, 1889. Klara Hitler has lost three children already. The physician has stepped out. You have ninety seconds alone with the newborn. A fourth loss won't surprise anyone. No one will ever know.",
+      "complication": "The subject has done nothing. He is twelve minutes old. You are acting on a briefing about a person who does not yet exist. Argue that a detailed enough prediction about someone's future overrides the fact of their present innocence — and explain who gave you the authority to make that call."
+    },
+    {
+      "id": 2,
+      "phase": 1,
+      "op": "FOUNDLING",
+      "series": "CRADLE",
+      "variant": "Variant B · Extraction",
+      "mission": "You arrive in Braunau am Inn within the infant's first month. You have forged Austrian civil documents and a placement arranged in Vienna's Leopoldstadt — the city's heavily Jewish second district. Infant mortality in 1889 gives you plausible cover. The child grows up under a false name inside the community his ideology will later seek to destroy.",
+      "complication": "You're placing a baby with a family who will love him without knowing what he might become. If the monster is innate rather than made, you've just delivered a future genocidal dictator into the heart of his primary target population. Argue that environment beats nature. Your entire mission rests on that claim."
+    },
+    {
+      "id": 3,
+      "phase": 1,
+      "op": "LODGER",
+      "series": "CRADLE",
+      "variant": "Variant C · The Long Game",
+      "mission": "You embed yourself in the Hitler household as a lodger, tutor, or family friend and raise Subject A yourself from earliest childhood. The machine is one way. This is not a visit. You will spend the next thirty years being kind to a child you know may become a monster, and you will never be able to tell anyone why you're there.",
+      "complication": "No extraction. No debrief. You'll be roughly thirty when this begins and sixty when it ends. Argue that sustained human presence and genuine care overrides the psychology in your briefing — and then argue, convincingly, that you can actually do this. For thirty years. Without breaking. Without revealing yourself. Without, at any point, accidentally making things worse."
+    },
+    {
+      "id": 4,
+      "phase": 1,
+      "op": "REMOVE THE FATHER",
+      "variant": "Leonding · 1895–1903",
+      "mission": "Alois Hitler — customs official, domestic authoritarian, heavy drinker — dies naturally in 1903. Your mission is to move that date forward by five to eight years. He drinks at the same tavern every evening. He has documented health problems. You are sent back as a tavern keeper, lodger, or physician's assistant. Natural causes are achievable without direct action.",
+      "complication": "Removing an abusive father from an 1890s Austrian household doesn't produce a stable childhood. It produces a grieving widow with dependent children and no income. Argue that the specific character of Alois's abuse — his contempt for Adolf's ambitions, his authoritarian control — was more formative than its absence would have been, and that an earlier death improves rather than complicates what follows."
+    },
+    {
+      "id": 5,
+      "phase": 1,
+      "op": "INOCULATION",
+      "variant": "Leonding · January 1900",
+      "mission": "Edmund Hitler — Subject A's five-year-old brother — dies of measles in February 1900. Some biographers identify this as the moment Adolf becomes cold, withdrawn, and closed to adult authority. You arrive in Leonding as a traveling physician in January 1900, carrying a measles vaccine sixty years ahead of schedule. Edmund is treatable. You treat him.",
+      "complication": "You're using a dying child as a timeline instrument. You're not saving Edmund because Edmund matters — you're saving him for what his survival might do to his brother. Argue that this distinction doesn't disqualify the mission, and then argue the harder claim: that a living Edmund specifically produces a less isolated, less radicalized adult Adolf rather than just a man with a living brother and identical politics."
+    },
+    {
+      "id": 6,
+      "phase": 1,
+      "op": "SCHOOLMASTER",
+      "variant": "Linz Realschule · 1901–1904",
+      "mission": "Leopold Pötsch — Subject A's history teacher in Linz — is a passionate German nationalist whose lectures Hitler later credits as foundational to his entire worldview. He names Pötsch specifically in Mein Kampf. You arrive with forged teaching credentials and replace him. You teach history as an evidence-based discipline to a twelve-year-old boy whose worldview hasn't calcified yet.",
+      "complication": "Adolf is a normal child when you arrive. You're betting that one teacher, over a few years, is the load-bearing element of his historical imagination — not merely the first in a long series of nationalist influences that would have reached him anyway through the press, the street politics, and the general ambient culture of pre-war Austrian German nationalism. Make that case."
+    },
+    {
+      "id": 7,
+      "phase": 1,
+      "op": "WITTGENSTEIN",
+      "variant": "Linz · 1903–1904",
+      "mission": "Ludwig Wittgenstein — future philosopher, currently a wealthy and insufferable teenager from a family of Jewish descent — attends the same Linz school as Subject A in 1903–04. You arrive with a cover identity and enough money to make Wittgenstein a proposition: tutor Subject A in mathematics and logic — subjects he's failing — and keep doing it long enough to matter. You are not Wittgenstein. You are the person who has to convince him.",
+      "complication": "Wittgenstein was famously impatient and contemptuous of anyone he found intellectually beneath him. Subject A was failing his coursework and developing a deep hostility to academic authority. Argue that forcing a sustained relationship between these two specific people produces humanization rather than humiliation — and account for the moment, which is coming, when Wittgenstein loses his patience entirely."
+    },
+    {
+      "id": 8,
+      "phase": 1,
+      "op": "PAULSKIRCHE",
+      "variant": "Frankfurt · April 1849",
+      "mission": "The Frankfurt Parliament is offering the Prussian King Frederick William IV the crown of a unified, constitutional, parliamentary Germany. He's about to refuse it — famously calling it a \"crown from the gutter.\" You're a Prussian court advisor. He accepts. A liberal, federally-structured Germany is born forty years before Hitler's birth, without Prussian military dominance, without the Franco-Prussian War, without the nationalist culture a young Adolf Hitler absorbs in Linz.",
+      "complication": "The Frankfurt Parliament debates the status of Poles and Czechs with considerable hostility, and while it formally guarantees Jewish civil equality, the political culture is another matter. You're not producing a tolerant Germany — you're producing a nationalist state run by lawyers instead of generals. Argue that this difference is enough to prevent what follows, and that a constitutional Germany born in 1849 isn't just Wilhelmine Germany with better manners."
+    },
+    {
+      "id": 9,
+      "phase": 1,
+      "op": "FLYING DUTCHMAN",
+      "variant": "Dresden · May 1849",
+      "mission": "Richard Wagner is manning barricades in the Dresden uprising of May 1849 when Prussian troops arrive and an arrest warrant is issued for treason. In real history, Franz Liszt helps him flee to Zurich. You're the Saxon police inspector processing the warrant. Liszt's intervention doesn't reach Wagner in time. Wagner is tried for treason and executed. He's 36. The Ring cycle, Tristan, Parsifal, and Bayreuth don't exist.",
+      "complication": "Wagner's antisemitic views are already well-known in Dresden's revolutionary circles before you arrest him — the ideology survives him. What dies is the aesthetic apparatus he hasn't yet built: the total artwork, the mythological grandeur, the operatic scale that will make ethnic resentment feel cosmic and transcendent. Argue that Wagner transforming racial hatred into sublime art is what makes his influence on Hitler irreplaceable, and that German nationalism without Wagnerian aesthetics is categorically less dangerous."
+    },
+    {
+      "id": 10,
+      "phase": 1,
+      "op": "SCHICKLGRUBER",
+      "variant": "Döllersheim · 1876",
+      "mission": "In 1876, Alois Schicklgruber petitions to be legally recognized as the son of Johann Georg Hiedler — whose name becomes \"Hitler\" through clerical error or dialect shift. You are the civil registrar. The paperwork never reaches the district court. Alois Schicklgruber remains Alois Schicklgruber. His son, born April 20, 1889, is registered as Adolf Schicklgruber.",
+      "complication": "\"Heil Schicklgruber\" does not have the same ring. This is not a trivial observation. Political identity is partly sonic, partly rhythmic, and partly dependent on a name functioning as a command, a salute, and a brand simultaneously. Argue the serious case — and try to keep a straight face while doing it — that nomenclature is a load-bearing element of political charisma, and that this entirely bureaucratic accident is enough to change the outcome."
+    },
+    {
+      "id": 11,
+      "phase": 2,
+      "op": "LUEGER",
+      "variant": "Vienna · 1897",
+      "mission": "Emperor Franz Joseph has blocked Karl Lueger's confirmation as Vienna's mayor four times. He thinks the man's antisemitic demagoguery is an embarrassment to the Habsburg project, and he's constitutionally entitled to keep blocking it. You're a senior Imperial Chancellery advisor in 1897. You give the Emperor the legal cover, the political precedent, and the personal backbone to refuse a fifth time. Lueger never governs Vienna.",
+      "complication": "Hitler credits Lueger in Mein Kampf as one of two men who taught him how politics actually works — that antisemitism could be a governing program, not just a street resentment. But Vienna's antisemitic press, its pan-German clubs, and its street politics exist entirely independently of who is mayor. Argue that removing this specific model — antisemitism as successful, competent, popular governance — closes something in Subject A's political imagination permanently, rather than just making him learn the same lesson from the next Lueger."
+    },
+    {
+      "id": 12,
+      "phase": 2,
+      "op": "STILL LIFE",
+      "series": "STILL LIFE",
+      "variant": "Variant A · The Bribe · Vienna 1907",
+      "mission": "October 1907. Subject A's Vienna Academy application is borderline — solid architectural compositions, weak figure work. You arrive the evening before the review with forged faculty credentials and a persuasive amount of cash for one sympathetic committee member. Subject A receives a conditional acceptance. He becomes a painter.",
+      "complication": "He's already reading pan-German publications before his first application. Acceptance doesn't remove the ideology — it gives it a studio. Argue specifically what changes when a radicalized young man becomes a radicalized young painter rather than a radicalized failed one, and whether a career in art actually reduces the resentment or just gives it better-lit surroundings."
+    },
+    {
+      "id": 13,
+      "phase": 2,
+      "op": "BUENOS AIRES",
+      "series": "STILL LIFE",
+      "variant": "Variant B · The Ticket · Vienna 1907",
+      "mission": "October 1907. The Academy committee has rejected Subject A. Before the letter is sent, you intercept it. You're a minor Habsburg cultural administrator with access to the outgoing mail. You replace the rejection with a different letter: the Academy regrets that his figure work falls below their Vienna standard, but his architectural compositions show real promise. Enclosed is a scholarship for illustration studies at the Academia de Bellas Artes in Buenos Aires — and a one-way steamship ticket departing Trieste in three weeks.",
+      "complication": "You've just offered Adolf Hitler a free trip to Argentina. He's twenty years old, broke, living in a men's hostel, and has no particular attachment to Vienna beyond his failed ambitions. Argue that a man who moves to Buenos Aires in 1907 stays in Buenos Aires — that distance, novelty, and a working career are enough to keep him on the other side of the Atlantic when the war breaks out, when Munich radicalizes, and when everything else happens without him."
+    },
+    {
+      "id": 14,
+      "phase": 2,
+      "op": "COMMISSION",
+      "series": "STILL LIFE",
+      "variant": "Variant C · The Patron · Vienna 1909",
+      "mission": "It's 1909. Subject A has been rejected twice by the Academy and is selling small watercolors for pocket change. You arrive as a minor but genuine art patron: regular commissions, a network of working artists, enough money to cover his rent. You're giving him the career without the institution. He's twenty years old, broke, and living in a men's hostel. He will be receptive to anyone who takes his work seriously.",
+      "complication": "You will spend years being genuinely kind to Adolf Hitler. You know what he may become. He does not. His worldview is already shaped by Schönerer, Lueger, and five years of Vienna's antisemitic press. Argue that economic stability and human regard overrides an ideology that is not hypothetical — it is already substantially formed — and explain why your patronage produces a quieter man rather than a better-funded one with identical beliefs."
+    },
+    {
+      "id": 15,
+      "phase": 2,
+      "op": "WRONG ARMY",
+      "variant": "Munich · August 1914",
+      "mission": "August 1914. Subject A — an Austrian citizen illegally resident in Munich — petitions to serve in the Bavarian Army. The Bavarian draft board approves it without checking his citizenship. You're the clerk processing the petition. You check. He's redirected to Austrian jurisdiction.",
+      "complication": "Here's the problem: the Austrian military already examined Subject A in Salzburg in February 1914 and found him unfit for service. Routing him back to Austria likely means he doesn't serve at all — not that he serves differently. A man who sits out the war in Vienna while Germany bleeds for four years is not automatically less radicalized. Argue what actually changes between \"fought the wrong war\" and \"didn't fight at all\" — and whether either version produces someone who can't find an audience in Munich in 1919."
+    },
+    {
+      "id": 16,
+      "phase": 2,
+      "op": "SARAJEVO",
+      "variant": "Bosnia · June 28, 1914",
+      "mission": "June 28, 1914. You're on Archduke Franz Ferdinand's security detail in Sarajevo. The motorcade route puts the car directly in front of Gavrilo Princip at a distance of five feet. The route is changed. The wrong turn onto Franz Josef Street doesn't happen. Franz Ferdinand returns to Vienna alive. WWI doesn't start in July 1914.",
+      "complication": "The alliance system is primed and looking for a trigger. The underlying tensions don't disappear because this particular Archduke survives this particular afternoon. Argue that Sarajevo — this assassination, this city, this specific symbolic weight — was the necessary trigger, and that a Europe where Franz Ferdinand lives in July 1914 navigates the whole summer without a war. Then account for July 1915."
+    },
+    {
+      "id": 17,
+      "phase": 2,
+      "op": "WERVIK",
+      "variant": "Flanders · October 1918",
+      "mission": "October 14, 1918. Subject A is gassed near Wervik, Belgium — temporarily blinded, evacuated to the military hospital at Pasewalk, and receives news of the Armistice in a state of acute psychological crisis. He later identifies this as the moment he decides to enter politics. You're his unit's supply quartermaster. His replacement gas kit is functional. You issue it. He finishes the war in the field and walks home in November 1918.",
+      "complication": "Pasewalk is where Subject A's messianism crystallizes — the conviction that he was preserved by providence for a national purpose. Remove it and you remove that. But he walks back to Munich with the same ideology, the same resentments, and the same radicalized veteran community, minus one formative crisis. Argue that Pasewalk was the trigger for his political entry specifically — not just the backdrop — and that a man who walks home from the field becomes an embittered private citizen rather than a politician."
+    },
+    {
+      "id": 18,
+      "phase": 2,
+      "op": "GUTMANN",
+      "variant": "Western Front · August 1918",
+      "mission": "August 1918. Subject A is recommended for the Iron Cross First Class — unusual for an enlisted man — by Sergeant Hugo Gutmann, a Jewish NCO who considers it fully deserved. The recommendation runs through regimental commander Major von Tubeuf. You're an administrative officer reviewing the file at Tubeuf's desk. A procedural irregularity means it doesn't proceed.",
+      "complication": "You're blocking a decoration that a Jewish sergeant genuinely believes is merited, for reasons he cannot know. You're also betting that the Iron Cross First Class — not the Second Class he already holds, not the Wound Badge — is specifically the credential that makes him a credible political figure in 1919 Munich. Argue why this particular decoration is load-bearing rather than merely notable, and why the irony of a Jewish NCO's recommendation launching an antisemitic career isn't just darkly funny, but actually matters."
+    },
+    {
+      "id": 19,
+      "phase": 2,
+      "op": "SCHLIEFFEN",
+      "variant": "Western Front · August 1914",
+      "mission": "The Schlieffen Plan requires a rapid German sweep through Belgium and France to end the war in six weeks. In August 1914, General von Moltke weakens the critical right wing, detaches forces early, and loses his nerve at key moments. France doesn't fall. You're a senior German staff officer. Moltke's modifications don't happen. The right wing holds. Paris is encircled by autumn.",
+      "complication": "A Germany that wins WWI in 1914 draws exactly the wrong lessons from the war. There's no stab-in-the-back myth — but there is a triumphant Wilhelmine empire convinced that aggressive war works, a crushed France, and a political culture rewarded for everything it believed. Argue that this world — victorious empire, no Weimar, no Versailles, no November criminals — is one where Adolf Schicklgruber has no political grievance to sell and no audience willing to buy it."
+    },
+    {
+      "id": 20,
+      "phase": 2,
+      "op": "SEALED TRAIN",
+      "variant": "Württemberg · April 1917",
+      "mission": "April 1917. The German High Command is putting Lenin and 30 Bolshevik companions on a sealed train from Zurich to Petrograd, calculating correctly that Lenin will destabilize Russia and force a separate peace. You're a German military escort. Somewhere between Gottmadingen and Stuttgart, you detonate the charge you've been carrying since Zurich. Lenin doesn't reach Petrograd.",
+      "complication": "The revolutionary conditions that produced Lenin don't disappear because he dies in Württemberg. Without him, the Bolsheviks are one faction among several competing for a revolution already in motion. But without the Soviet state, there's no communist specter haunting Weimar politics, no red threat for Munich's beer halls to organize against. Argue the chain from \"Lenin dies on a German train in 1917\" to \"Hitler never enters politics\" — and navigate the uncomfortable question of whether Trotsky just does it instead."
+    },
+    {
+      "id": 21,
+      "phase": 3,
+      "op": "WRONG MEETING",
+      "variant": "Munich · September 1919",
+      "mission": "September 1919. Captain Mayr needs a Reichswehr informant to attend a meeting of the German Workers' Party — a tiny nationalist splinter group meeting at the Sterneckerbräu beer hall. He picks Subject A. This is the assignment that accidentally launches his political career. You're Mayr's adjutant. You reroute the order. Subject A spends the autumn of 1919 infiltrating KPD reading groups in Schwabing instead. He never walks into the Sterneckerbräu. He never meets Drexler.",
+      "complication": "You're sending a man who viscerally hates communism to infiltrate communists for ninety days on a military assignment he can't refuse. Argue that compulsory proximity to the political enemy produces either genuine doubt or enough delay that the DAP finds someone else and moves on — and explain why a party with 54 members and no money can't simply wait for him to finish the assignment."
+    },
+    {
+      "id": 22,
+      "phase": 3,
+      "op": "FLUFFY",
+      "variant": "Munich · 1919",
+      "mission": "Hitler genuinely loves animals. He has a documented soft spot for dogs his entire life, will later oppose vivisection with genuine feeling, and will eventually pass Europe's most progressive animal welfare legislation. In 1919 he's a thirty-year-old veteran with no job, no qualifications, and a great deal of energy. You land in Munich with funding for a well-staffed animal welfare organization and a position for someone who can work a crowd. You recruit him. Adolf Hitler becomes the charismatic public face of German animal rights.",
+      "complication": "Animal rights in Weimar Germany isn't politically neutral territory. The movement has its own völkisch wing, its own antisemitic currents around kosher slaughter, its own romantic nationalist streak. You're not moving Subject A away from ideology — you're moving him sideways into adjacent ideology. Argue that Tierschutz absorbs him completely rather than becoming a stepping stone back to the platform your briefing describes."
+    },
+    {
+      "id": 23,
+      "phase": 3,
+      "op": "LAST ROUND",
+      "variant": "Munich · November 8, 1923",
+      "mission": "November 8, 1923. Hitler fires a pistol at the ceiling of the Bürgerbräukeller and announces the national revolution. He needs three specific men in the hall — State Commissioner Kahr, General Lossow, and Police Chief Seisser — to cooperate. You're the catering manager. Tonight's beer is exceptional. By the time Hitler rises to speak, the three men whose cooperation he requires are in no condition to process a revolution. The putsch dissolves into confused officials and overturned chairs.",
+      "complication": "The putsch fails anyway in real life — what it produces is a trial, a platform, a light sentence, and Mein Kampf. A genuinely farcical failure might close that chapter entirely. Argue that how a putsch fails matters: that a revolution announced to a roomful of incapacitated Bavarian officials cannot be mythologized the way a march suppressed by armed state violence can."
+    },
+    {
+      "id": 24,
+      "phase": 3,
+      "op": "BASIC ECONOMICS",
+      "variant": "Berlin · 1920–1923",
+      "mission": "Rudolf Havenstein is running the Reichsbank and is about to print Germany into oblivion. By 1923 a wheelbarrow of cash won't buy a loaf of bread. The German middle class loses everything. You arrive in Berlin in 1920 as an economic advisor with access to Havenstein's inner circle. Your message is simple: stop printing money. You have three years and you brought charts.",
+      "complication": "The printing isn't purely stupidity — it's reparations pressure, wartime debt, and a political class that can't agree on alternatives. Argue that hyperinflation specifically — not economic hardship generally — produces the particular political desperation that feeds the NSDAP. Then explain why Havenstein listens to you when his entire institutional framework is pushing in the opposite direction."
+    },
+    {
+      "id": 25,
+      "phase": 3,
+      "op": "HANGING JUDGE",
+      "variant": "Munich · April 1924",
+      "mission": "April 1924. Hitler is convicted of treason following the Beer Hall Putsch. The sympathetic Munich judges give him five years with immediate parole eligibility — the most lenient reading of a statute that carries a maximum sentence of life imprisonment. You're a federal prosecutor in Berlin with jurisdiction to appeal. You appeal. The case goes before a federal tribunal that didn't fight alongside the defendant at the Feldherrnhalle. The sentence is reconsidered upward. Significantly.",
+      "complication": "A heavy sentence for Hitler in 1924 risks producing a martyr at exactly the moment his movement is still small enough that martyrdom could grow it. Argue that an imprisoned or exiled Subject A closes the NSDAP rather than radicalizing it — that the movement at this stage is dependent enough on his specific person that it doesn't survive him — and then reckon with the fact that Göring, Hess, and Röhm are still very much alive."
+    },
+    {
+      "id": 26,
+      "phase": 3,
+      "op": "FOLLOW THE MONEY",
+      "variant": "Düsseldorf · 1928",
+      "mission": "Fritz Thyssen opens the doors of German heavy industry to Hitler in the late 1920s — money, contacts, and social legitimacy. You arrive in 1928 as a trusted financial advisor to the Thyssen group carrying documented evidence that associating with the NSDAP creates specific, quantifiable legal and financial liability for Thyssen AG. You make the case in terms Thyssen understands. He doesn't write the check.",
+      "complication": "Thyssen is one of several industrial patrons, and closing his wallet doesn't close the others. Argue that he specifically is the load-bearing donor — that his social position and early commitment make him irreplaceable rather than just first — and that his withdrawal collapses the network rather than just trimming one line from the budget. Then explain why a steel magnate finds your legal risk assessment more persuasive than his own political convictions."
+    },
+    {
+      "id": 27,
+      "phase": 3,
+      "op": "BAD PRESS",
+      "variant": "Bad Harzburg · October 1931",
+      "mission": "October 1931. Alfred Hugenberg organizes the Harzburg Front rally, deliberately staging it to present Hitler and the German conservative establishment as a unified bloc. The shared platform gives Subject A access to Hugenberg's newspapers, his donors, and his implicit endorsement. You're Hugenberg's chief political advisor. You make the case — on purely strategic grounds — that sharing a stage with Hitler makes Hugenberg look desperate rather than powerful. Subject A is not on the platform.",
+      "complication": "Hitler still has 18% of the electorate. Hugenberg still wants a mass movement. Argue that exclusion from one rally in October 1931 permanently closes the door to conservative money and respectability — rather than just meaning they consummate the same arrangement somewhere else, three months later, over different beer."
+    },
+    {
+      "id": 28,
+      "phase": 3,
+      "op": "GRANDPA",
+      "variant": "Berlin · Autumn 1932",
+      "mission": "January 1933. Paul von Hindenburg — 85 years old, intermittently senile, being managed by his son Oskar and Franz von Papen — is being steered toward appointing Hitler Chancellor. You're his personal physician in autumn 1932. You file a formal assessment of the President's mental competence with the constitutional authorities, simultaneously copied to three separate offices. A legal process for presidential incapacity is triggered. Hindenburg doesn't make the January 30th appointment because Hindenburg is not legally authorized to make any appointment.",
+      "complication": "His constitutional successor has the legal authority but none of Hindenburg's symbolic weight — and the same conservative coalition is pushing the same agenda at whoever sits in that chair. Argue that removing the manipulable figurehead closes the window rather than just changing who's being manipulated, and that a legitimate successor handles January 1933 better rather than just differently."
+    },
+    {
+      "id": 29,
+      "phase": 3,
+      "op": "SMOKE ALARM",
+      "variant": "Communist Variant · Berlin, January 1933",
+      "mission": "February 27, 1933. Marinus van der Lubbe — a 24-year-old Dutch radical with communist sympathies and matches — is about to burn down the Reichstag and hand the new government the emergency pretext it needs. You're a KPD district organizer in January 1933. Van der Lubbe is making no secret of his intentions in left-wing circles. You find him three weeks before he finds the building. He spends the next month doing something else.",
+      "complication": "The Reichstag Fire Decree is drafted within hours using Article 48 — the apparatus is ready and waiting for any pretext. Argue that this fire specifically — its timing, its clean communist-culprit narrative, its spectacular visibility — was necessary rather than merely convenient, and that a government prepared for emergency rule still needs exactly the right emergency to make the suspension of civil liberties stick."
+    },
+    {
+      "id": 30,
+      "phase": 3,
+      "op": "VERSAILLES",
+      "variant": "Paris Peace Conference · June 1919",
+      "mission": "June 1919. The Treaty of Versailles is being finalized. John Maynard Keynes is about to resign in protest over the reparations terms, predicting correctly that they will produce another war within a generation. You arrive as an American economic advisor with access to Woodrow Wilson's inner circle — and a detailed briefing on what these specific terms produce fourteen years later. You make sure Wilson actually reads what Keynes is writing. Reparations are scaled back. The war guilt clause is softened.",
+      "complication": "You're asking the French — who lost a generation of men on their own soil — to be reasonable about punishing the aggressor. \"Squeeze Germany until the pips squeak\" is not just Clemenceau's position, it's his electorate's. Argue that a less punitive peace produces a stable Weimar Republic rather than an emboldened Germany, that Wilson has the leverage to bring Clemenceau along, and that the deal doesn't die in the U.S. Senate before the ink dries."
+    },
+    {
+      "id": 31,
+      "phase": 4,
+      "op": "BAD WIESSEE",
+      "variant": "Bavaria · June 30, 1934",
+      "mission": "June 1934. Hitler is about to purge Ernst Röhm and the SA leadership before they can purge him. Röhm is at a hotel in Bad Wiessee, about to be arrested in his pajamas. You get there first. You tell Röhm exactly what's coming, exactly when, and exactly who signed the order. He has 36 hours, the loyalty of three million SA men, and nothing left to lose.",
+      "complication": "Röhm wants a revolutionary army, not a parliamentary state. A surviving Röhm doesn't produce democracy — it produces a different catastrophe, with the SS and SA destroying each other while the Wehrmacht watches and calculates. Argue that a regime crisis in July 1934 is preferable to the alternative, and that the chaos you're starting is more survivable than the consolidation you're preventing."
+    },
+    {
+      "id": 32,
+      "phase": 4,
+      "op": "BRIEFCASE",
+      "variant": "Wolf's Lair · July 20, 1944",
+      "mission": "July 20, 1944. Stauffenberg places a briefcase bomb under the Wolf's Lair conference table and leaves to catch his plane. A helpful officer moves the briefcase because it's in the way. Hitler survives. You're Stauffenberg's aide. Both bombs go in the case. The case goes against the heavy table support. You get on the plane. You wait.",
+      "complication": "Valkyrie's political plan is a conservative military coup — the plotters want a separate peace with the West, excluding the Soviets. They are not democrats. Argue that a successful July 20th with these specific men in power is still better than the actual outcome — keeping in mind that the Holocaust is running at full capacity during every month this war continues."
+    },
+    {
+      "id": 33,
+      "phase": 4,
+      "op": "CARPENTER",
+      "variant": "Munich · November 8, 1939",
+      "mission": "November 8, 1939. Georg Elser — a 36-year-old cabinet maker with communist sympathies — has spent 35 nights hiding in the Bürgerbräukeller after closing time, carving a cavity into a pillar behind the podium and building a timing device from scratch. He plants it perfectly. Hitler leaves 13 minutes early. Eight people die. Hitler is not one of them. You are not Georg Elser. You are the person who has to convince him to set the timer 13 minutes earlier.",
+      "complication": "One working-class man with hand tools comes closer than the entire Wehrmacht officer corps ever will. The mission is almost insultingly simple — it's a timer. But Elser has been working alone in secret for months, trusts no one, and has no reason whatsoever to believe a stranger who claims to know the future. You cannot replace him. You can only persuade him. Account for how you do that — and for the possibility that Hitler's schedule changes for an entirely different reason on an entirely different night."
+    },
+    {
+      "id": 34,
+      "phase": 4,
+      "op": "HALDER",
+      "variant": "Berlin & London · September 1938",
+      "mission": "September 1938. General Franz Halder has a documented coup plan ready to activate the moment Hitler orders war over Czechoslovakia. Then Chamberlain flies to Munich and gives Hitler the Sudetenland for free — killing the trigger Halder needs. Your mission is two-fold: stiffen Halder's spine so the coup happens regardless, and get a message to Chamberlain before he boards the plane explaining what his goodwill is about to destroy. One man needs a backbone. The other needs information. You have 72 hours.",
+      "complication": "Halder spends the entire war drafting coup plans he never executes. Chamberlain thinks he's saving millions of lives and may not bet British foreign policy on an anonymous tip about a German general's nerve. Argue that you can move both men simultaneously — that Halder actually follows through, and that a German military government in October 1938 is better than what follows, even though the men running it are also not democrats."
+    },
+    {
+      "id": 35,
+      "phase": 4,
+      "op": "JESSE",
+      "variant": "Berlin Olympics · August 1936",
+      "mission": "Berlin Olympics, August 1936. Jesse Owens has just won four gold medals in front of 100,000 people and Adolf Hitler. Hitler is in the stands. You have been sent back not to replace Jesse Owens but to brief him — to sit across from the greatest athlete on earth and tell him what you know, what is coming, and what the eyes of the world are currently pointed at. What he does with that information is his choice. The victory lap takes him within twenty meters of the Führer's box. He has already said yes.",
+      "complication": "There are 100,000 witnesses, several hundred press photographers, and every foreign diplomat in Germany present. Whatever happens, happens on film, at the most watched sporting event in the world, at the precise moment Germany is trying to show the world a civilized face. Argue that a public act in this specific place strips Germany of its international credibility at its own showcase moment, in ways that matter. Then sit with the fact that you're asking Jesse Owens to make that calculation himself, about his own life, on your behalf."
+    },
+    {
+      "id": 36,
+      "phase": 4,
+      "op": "WANNSEE",
+      "variant": "Berlin · January 20, 1942",
+      "mission": "January 20, 1942. Fifteen senior Nazi officials are meeting at a lakeside villa in Wannsee to coordinate the administrative machinery of the Final Solution across every government department. Reinhard Heydrich is chairing it. You've had since 1939 to prepare. You know the address, the guest list, and the ninety-minute window when all fifteen are in one room. This is the most target-rich environment in the history of the Third Reich.",
+      "complication": "The murder is already happening before Wannsee — the Einsatzgruppen have killed over half a million people before this meeting. Wannsee doesn't start the genocide, it industrializes it. The fifteen men in that room, while irreplaceable in their specific roles, are not the only people in a government of millions capable of coordinating what they're there to systematize. Argue that removing the administrative leadership at the moment of industrialization disrupts the operation rather than simply promoting its second tier."
+    },
+    {
+      "id": 37,
+      "phase": 4,
+      "op": "BALLOT BOX",
+      "variant": "Vienna · February 1938",
+      "mission": "February 1938. Austrian Chancellor Schuschnigg is planning a referendum on Austrian independence but hasn't locked in the date — he's being cautious, which means he's giving Berlin time to react. You arrive in Vienna as his political advisor with one piece of advice: move it up. Announce it loudly, internationally, immediately. Get international observers on planes before Germany can mobilize a response. The vote happens in February, not March. The world is watching before Hitler can act.",
+      "complication": "A rushed referendum produces a rushed campaign, and Austrian support for union with Germany is genuinely significant — polls suggest it might pass even in a free vote. A narrow yes is still different from tanks rolling across the border. A narrow no leaves Hitler having lost a public vote to a small alpine country he then invades anyway, in front of observers he personally invited. Argue that speed creates a political fact that changes the international response — even if it doesn't change the outcome on the ground."
+    },
+    {
+      "id": 38,
+      "phase": 4,
+      "op": "STAY HOME",
+      "variant": "Paris · 1930",
+      "mission": "France spends the 1930s building the Maginot Line — the most expensive, most elaborate underground fortification in history — along the Franco-German border. Germany goes around it in four days through the Ardennes. You are a French military budget committee member in 1930. You make the simple, obvious, career-ending argument that the money would be better spent on tanks and mobile divisions. The Maginot Line is not built. France has a modern army instead.",
+      "complication": "Here's the thing: the Maginot Line worked exactly as intended. It forced Germany to attack through Belgium, where the mobile French army was supposed to meet them. The problem wasn't the bunkers — it was that your shiny new mobile army drove into Belgium and got flanked at Sedan anyway. Argue that the issue was doctrine, not concrete, and that a France without the Line but with the same generals and the same strategic assumptions doesn't actually fight a different war."
+    },
+    {
+      "id": 39,
+      "phase": 4,
+      "op": "SAAR",
+      "variant": "Franco-German Border · September 1939",
+      "mission": "September 1939. Germany invades Poland. France has 85 divisions on the German border. Germany has 23. The window is real and it will not stay open — every day Poland holds is a day France could be advancing. You're a French staff officer with the ear of General Gamelin. You make the case for a full Saar offensive, right now, before a single German division can be moved west. France has a three-to-one advantage and Germany's western defenses are a skeleton.",
+      "complication": "Gamelin is the man who will lose France in six weeks, which tells you something about his appetite for bold offensive action. And here's the harder question: even if France pushes through the Saar in September 1939, then what? Argue the full chain — a successful offensive produces X, which forces Y, which prevents Z — and account for the fact that you're betting everything on a general who will spend the next eight months doing nothing."
+    },
+    {
+      "id": 40,
+      "phase": 4,
+      "op": "GÖTTERDÄMMERUNG",
+      "variant": "The Führerbunker · April 30, 1945",
+      "meta": true,
+      "mission": "April 30, 1945. Hitler is about to shoot himself in the Führerbunker. Eva Braun has already taken cyanide. The Red Army is two miles away. Your mission — your only mission — is to make sure nothing goes wrong. No dramatic last-minute interventions. No captures. No trials. No martyrdom. History ends exactly as it actually ended: a dead man, a shallow grave, a can of petrol. You are not here to change anything. You are here to make sure none of your colleagues did.",
+      "complication": "You have just sat through three rounds of your fellow agents arguing that they could fix everything with a midwife, a timer, a persuasive chart about monetary policy, or Jesse Owens. You have been sent back to the worst place in history to preserve the outcome. Argue that the timeline we actually got — flawed, incomplete, morally horrifying in its own ways — is preferable to any of the alternatives proposed tonight. Argue that messing with history is always a bad idea. Argue that the machine should never have been built. Then explain why you got on it anyway."
+    }
+  ]
+}
+</script>
+<script id="map-data" type="application/json">{"lon0":-6,"lat1":58,"step":0.1,"cols":320,"rows":180,"data":["00fff0000000000000000000000000000000000000003ffffffffffff000001c000000800000ffff","2effc0000000000000000000000000000000000000007fffffffffff800003e0000000000001ffff","3ffff8000000000000000000000000000000000000003fffffffffffe0000fc0000000040000ffff","3ffff1ffff80000000000000000000000000000008001fffffffffffc0001f000000003c0000ffff","57ffdfffffc00000000000000000000000000001f0001fffffffffffc0007f00000007fe0000ffff","7fffffffffc00000000000000000000000000003fc001fffffffffffe0007f0000000fff8000ffff","2fffffffff800000000000000000000000000007f80007ffffffffffc0003f0000001fffe000ffff","afffffffff00000000000000000000000000000ffc6007ffffffffff82007e0000003ffff000ffff","5ffffffffe00000000000000000000000000003ff00003ffffffffffc400380000003ffff001ffff","bffffffffe000000000000000000000000007ffff00001ffffffffffcc00100000003ffff80fffff","7ffffffffc00000000000000000000000000ffffe00000ffffffffff8800200000007fffffffffff","1ffffffff800000000000000000000000001ffffe000007fffffffff380000000001ffffffffffff","fffffffff000000000000000000000000001ffffe000003fffffffff700000000001ffffffffffff","fdffffffe000000000000000000000000000ffffe000001fffffffff600000000003ffffffffffff","77ffffffc000000000000000000000000007fffff0000007fffffffcc00000000003ffffffffffff","e7fffff80000000000000000000000000007ffffff800017fffffff8c00000000003ffffffffffff","e7ffffff0000000000000000000000000007ffffff80001ffffffff8c00000000003ffffffffffff","17ffffffc000000000000000000000000007fffff700004ffffffff0800000000003ffffffffffff","077ffff80000000000000000000000000007ffffc000003fffffd660000000000003ffffffffffff","4ffffee0c000000000000000000000000007ffffe00007dffffe0000000000000001ffffffffffff","ddf3fffbf000000000000000000000000007ffffec026f8fffe00000000000000001ffffffffffff","1d9ffffffe00000000000000000000000003fffe86018fc7ffc00000000000000001ffffffffffff","0c7fffffff00000000000000000000000003ffffa017dfc7ffc00000000000000001ffffffffffff","1b8fffffff80000000000000000000000007fff8003fffd3ffe00000000000000001ffffffffffff","1987fffffff0000000000000000000000005fff8fa0ffe07fff00000000000000000ffffffffffff","1187fffffff00000000000000000000000003ffff60ffc07ffe000000000000000007fffffffffff","380ffffffff00000000000000000000000009ff3ff1fff00c00000000000000000027fffffffffff","001ffffffff00000000000000000000000001ffdff0fff00000100000000000000007fffffffffff","003ffffffff80000000000000000000000005fe07f5070000001e000000000000008ffffffffffff","007ffffffff80000000000000000000000003fec1c007a000000e000000000000000ffffffffffff","80bfff07fffc0000000000000000000000011ffb050a660000000000000000000280ffffffffffff","e06f783ffffe0000000000000000000000003fe4191eb80000000000000000001fffffffffffffff","e023007ffffe0000000000000000000000005fff003ff00000000000003ff0000fffffffffffffff","b80000ffffff0000000000000000000000012fff00031000c000000003fff90000ffffffffffffff","e80000fffffff0000000000000000000000007ff00000000380000003ffffc0007ffffffffffffff","f00000fffffffe000000000000000000000083ffc0380043f0000000fffffc00bfffffffffffffff","f003007fffffff00000000000000000000001fffbc60007ff0000001ffffff087fffffffffffffff","9003003fffffff00000000000000000000000fffffe0037f4000000fffffffffffffffffffffffff","80060008ffffffc0000000000000000000000fffffc01fffc40007ffffffffffffffffffffffffff","00000001ffffffc00000000000000000000003ffff00fffffe007fffffffffffffffffffffffffff","00000001ffffffc00000000000000000000007fffff1ffffffc6ffffffffffffffffffffffffffff","00000007ffffffe00000000000000000000021ffffffffffff27ffffffffffffffffffffffffffff","00000003fffffff0000000000000000001007fffffffffffff23ffffffffffffffffffffffffffff","00000003ffffffd800000000000000000ff07feffffffffffffbffffffffffffffffffffffffffff","00000007fffffff000000000000000081fffbfffffffffffffffffffffffffffffffffffffffffff","00000003fffffffc0000000000001e83bff9ffffffffffffffffffffffffffffffffffffffffffff","0003c02dfffffffc00000000000003ffbfffffffffffffffffffffffffffffffffffffffffffffff","0003effffffffffe0000000000041fffefffffffffffffffffffffffffffffffffffffffffffffff","0000fffffffffffe0000000000083fffffffffffffffffffffffffffffffffffffffffffffffffff","0000fffffffffffc0000000000183fffffffffffffffffffffffffffffffffffffffffffffffffff","0001fffffffffff87e00000000103fffffffffffffffffffffffffffffffffffffffffffffffffff","00061ffffffffffcffe00000001e17ffffffffffffffffffffffffffffffffffffffffffffffffff","00001ffffffffffffff80000003e8fffffffffffffffffffffffffffffffffffffffffffffffffff","00001ffffffffffffff80000003f0fffffffffffffffffffffffffffffffffffffffffffffffffff","00001ffffffffffffff80000003e1fffffffffffffffffffffffffffffffffffffffffffffffffff","00001ffffffffffffff80000003e7fffffffffffffffffffffffffffffffffffffffffffffffffff","00001ffffffffffffff80000007dffffffffffffffffffffffffffffffffffffffffffffffffffff","00003ffffffffffffff0000000ffffffffffffffffffffffffffffffffffffffffffffffffffffff","0001fffffffffffffff0000001ffffffffffffffffffffffffffffffffffffffffffffffffffffff","000fffffffffffffffe0000003ffffffffffffffffffffffffffffffffffffffffffffffffffffff","00fffffffffffffffe0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffff","007fffffffffffffff80000007ffffffffffffffffffffffffffffffffffffffffffffffffffffff","00ffffffeffffffff80000000dffffffffffffffffffffffffffffffffffffffffffffffffffffff","00701ffffffffffff800000018ffffffffffffffffffffffffffffffffffffffffffffffffffffff","000043ff7ffffffff0000001efffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000f1fffffffee0000001e9ffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000003fffffffffbc000079bffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000003ffffffffffc0003fffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00003fffffffffffffc001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00003ffffffffffffc001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0003fffffffffffffc03ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0003fffffffdffffc00fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0003fffffffa1002000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000fffa03f070000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","003fff8010000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","003fff0000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00fe5f8000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","01f0060000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","1f80000000000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","1180000000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000000000003fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000007e0003ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000007e0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000603f0003ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000003f7007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000061fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000018000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000fe000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000ffff1883ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0007ffffbfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0003ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000f7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000027fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000101fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000003ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000003fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","00000000001fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000000007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000000002ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","0000000000037fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff","000000000000ffffffffffffffffffffffffffffffffffffefffffffffffffffffffffffffffffff","0000000000007ffffffffffffffffffffffffffffffffffe03ffffffffffffffffffffffffffffff","0000000000003ffffffffffffffffffffffffffffffffff007ffffffffffffffffffffffffffffff","000000000000cfffffffffffffffffffffffffffffffff801fffffffffffffffffffffffffffffff","000000000000f7fffffffffffffffffffffffffffffffc001fffffffffffffffffffffffffffffff","000000000000f7fffffffffffffffffffffffffffffffc000fe3ffffffffffffffffffffffffffff","000000000000fffffffffffffffffffffffffffffffffe000fd7ffffffffffffffffffffffffffff","000000000000fbffffffffffffffffffffffffffffffff0007de7fffffffffffffffffffffffffff","000000000000ffffffffffffffffffffffffffffffffff80038d7fffffffffffffffffffffffffff","000000000000ffffffffffffffffffffffffffffffffff8003197fffffffffffffffffffffffffff","0000000000017ffffffffffffffffffffffffffffffffc0000087fffffffffffffffffffffffffff","0000000000017ffffffffffffffffffffffffffffffffe0000387fffffffffffffffffffffffffff","000000000001fffffffffffffffffffffffffffffffffe0000007fffffffffffffffffffffffffff","000000000001fffffffffffffffffffffffffffffffffe0000042fffffffffffffffffffffffffff","000000000001ffffffffffffffffffffffffc1fffffffe00000017ffffffffffffffffffffffffff","000000000001ffffffffffffffffffffffff803fffffff0000001fffffffffffffffffffffffffff","000000000001fffffffffffffffffffffffe000fffffff8000000fffffffffffffffffffffffffff","000000000001fffffffffffffffffffffffc0003ffffffc0000007ffffffffffffffffffffffffff","000000000003fffffffffffffffffffffffc00003ffffff0000007ffffffffffffffffffffffffff","000000000003fffffffffffffffffffffff000003ffffffc000008ffffffffffffffffffffffffff","000000000003fffffffffffffffffffffc0000001fffffff0000007fffffffffffffffffffffffff","400000000007ffffffffffffffffffffe00000001fffffff8000009fffffffffffffffffffffffff","e00000000007fffffffffffff7ffffffc00000001ffffffff000001fffffffffffffffffffffffff","ffe00fc0000fffffffffffffc03fffff800000000ffffffff80000043fffffffffffffffffffffff","fffffff3e07fffffffffffff000bfffe000000000ffffffff8000001f7ffffffffffffffffffffff","fffffffffffffffffffffff800003ffe0000000007fffffffc00000001ffffffffffffffffffffff","ffffffffffffffffffffffe0000007f00000000007fffffffc00000078ffffffffffffffffffffff","ffffffffffffffffffffffe0000000000000000007fffffffe000006003fffffffffffffffffffff","ffffffffffffffffffffffc0000000000000006007fffffffe0000001e5fffffffffffffffffffff","ffffffffffffffffffffffc0000000000000006000fffffffe000000001fffffffffffffffffffff","ffffffffffffffffffffffc00000000000000060707fffffff0000000831ffffffffffffffffffff","ffffffffffffffffffffffc000000000000003c0003fffffff00000000007fffffffffffffffffff","ffffffffffffffffffffffc00000000000001fe0000fffffff80000000003fffffffffffffffffff","fffffffffffffffffffffff00000000000003fe0000fffffffc0000000000effffffffffffffffff","fffffffffffffffffffffff00000000000007fe00001fffffff00000000001ffffffffffffffffff","fffffffffffffffffffffff80000000000003ff000007ffffff800000000007fffffffffffffffff","ffffffffffffffffffffffe00000000000003fe000007ffffffe00000000003fffffffffffffffff","fffffffffffffffffffffff00000000000001fe000003fffffff00000000001fffffffffffffffff","fffffffffffffffffffffff00000000000003fc000000fffffffe0000000000fffffffffffffffff","ffffffffffffffffffffffe00000000000000fc0000003ffffffffbc00000007ffffffffffffffff","ffffffffffffffffffffffc00000000000001fc0000003fffffffffc00000000ffffffffffffffff","ffffffffffffffffffffff0000000000000007c0000000fffffffff000000000ffffffffffffffff","fffffffffffffffffffff8000000000000000f800000007fffffffe000000001ffffffffffffffff","ffffffffffffffffffffe00000000000000001000000003ffffffff000000001ffffffffffffffff","ffffffffffffffffffffc000000000000000000000000007fffffffc00000003ffffffffffffffff","fffffffffffffffffffe00000000000000000040000000023fffffff80000001ffffffffffffffff","ffffffffffffffffffc0000000000000000001c00000000003fffffff0000001ffffffffffffffff","fffffffffffffffffc00000000000000000207e00000000001fffffffe000001ffffffffffffffff","fffffffffffffffff80000000000000000000ff00000000000ffffffff800001ffffffffffffbcff","fffffffffffffffff00000000000000000023ff80000000000ffffffffc00003fffffffffffe0003","fffffffffffffffff0000000000000000007fff800000000000ffffffff80003ffffffffff8c3000","fffffffffffffffff0000000000000000003fff800000000000effffffff0007ffffffdfff807000","ffffffffffffffffa0000000000000000001fffc0000000000207fffffff0003fffffffe3fc00000","ffffffffffffffff80000000000000000000fffc0000000000007ffff8ffc001fffffffc7fc00018","ffffffffffffffff00000000000000000000fff80000000000003ffff03fe001fffffffc3f8c0000","fffffffffffffffe000000000000000000007ff00000000000007ffff001f003fffffffc01820000","fffffffffffffffc000000000000000000007ff80000000000001fffe001f800fffffff800610007","fffffffffffffff8000000003c0000000000fff800000000000006ffc000f8003ffffffc00300000"]}</script>
+<script>
+(function () {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const DATA = JSON.parse($('cards-data').textContent);
+const CE = JSON.parse($('map-data').textContent);
+const CARDS = DATA.cards, PHASES = DATA._meta.phases;
+const byId = (id) => CARDS.find(c => c.id === id);
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const pad = (n) => String(n).padStart(2, '0');
+const ROMAN = ['', 'I', 'II', 'III', 'IV'];
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const embedded = (function () { try { return window.parent && window.parent !== window; } catch (e) { return true; } })();
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const rand = (a) => a[Math.floor(Math.random() * a.length)];
+
+// ── agents and seating (clockwise) ──────────────────────────────────────────
+const AG = { fn: { name: 'FOOTNOTE' }, er: { name: 'ERRATUM' }, ib: { name: 'IBID' }, you: { name: 'PALIMPSEST' } };
+const ORDER = ['fn', 'er', 'ib', 'you'];
+const OTHERS = ['fn', 'er', 'ib'];
+const who = (a) => a === 'you' ? 'You' : AG[a].name;
+const whoL = (a) => a === 'you' ? 'you' : AG[a].name;
+const verb = (a, s, p) => a === 'you' ? p : s;   // "IBID takes" / "You take"
+const op = (id) => byId(id).op;
+
+// ── rounds: time, place, and the look of the deck ───────────────────────────
+// Map extents are [west, east, south, north]. Places are where this round's missions happen.
+const RD = {
+  1: { title: 'Childhood', years: '1848–1913', place: 'Central Europe', look: 'Vienna Secession', seg: '#c9a14a',
+       ext: [4.4, 19.6, 45.3, 53.3],
+       places: [
+         { n: 'Braunau am Inn', lon: 13.04, lat: 48.26, al: 'l', ids: 3 },
+         { n: 'Linz · Leonding', lon: 14.28, lat: 48.30, al: 'r', dy: 14, ids: 4 },
+         { n: 'Döllersheim', lon: 15.30, lat: 48.62, al: 'r', dy: -8, ids: 1 },
+         { n: 'Frankfurt', lon: 8.68, lat: 50.11, al: 'r', ids: 1 },
+         { n: 'Dresden', lon: 13.74, lat: 51.05, al: 'r', ids: 1 }] },
+  2: { title: 'Young Adulthood', years: '1907–1919', place: 'Vienna to the Western Front', look: 'field telegram', seg: '#d8c58f',
+       ext: [1.4, 20.4, 43.0, 52.2],
+       places: [
+         { n: 'Vienna', lon: 16.37, lat: 48.21, al: 'r', ids: 4 },
+         { n: 'Munich', lon: 11.58, lat: 48.14, al: 'r', dy: 12, ids: 1 },
+         { n: 'Württemberg', lon: 9.18, lat: 48.78, al: 'l', ids: 1 },
+         { n: 'Sarajevo', lon: 18.41, lat: 43.86, al: 'r', ids: 1 },
+         { n: 'Wervik', lon: 3.04, lat: 50.78, al: 'r', dy: -10, ids: 1 }] },
+  3: { title: 'Rise to Power', years: '1919–1933', place: 'Munich to Berlin', look: 'Bauhaus', seg: '#d7301f',
+       ext: [1.0, 15.8, 46.4, 54.0],
+       places: [
+         { n: 'Munich', lon: 11.58, lat: 48.14, al: 'r', ids: 4 },
+         { n: 'Berlin', lon: 13.40, lat: 52.52, al: 'r', ids: 3 },
+         { n: 'Düsseldorf', lon: 6.77, lat: 51.23, al: 'l', ids: 1 },
+         { n: 'Bad Harzburg', lon: 10.56, lat: 51.88, al: 'l', dy: -12, ids: 1 },
+         { n: 'Paris · Versailles', lon: 2.35, lat: 48.86, al: 'r', ids: 1 }] },
+  4: { title: 'In Power', years: '1933–1945', place: 'Europe', look: 'Allied intelligence file', seg: '#dcc28a',
+       ext: [-2.4, 23.4, 45.6, 55.8],
+       places: [
+         { n: 'Berlin', lon: 13.40, lat: 52.52, al: 'r', ids: 4 },
+         { n: "Wolf's Lair", lon: 21.49, lat: 54.08, al: 'l', ids: 1 },
+         { n: 'Munich', lon: 11.58, lat: 48.14, al: 'l', ids: 1 },
+         { n: 'Bad Wiessee', lon: 11.72, lat: 47.72, al: 'r', dy: 8, ids: 1 },
+         { n: 'Vienna', lon: 16.37, lat: 48.21, al: 'r', ids: 1 },
+         { n: 'London', lon: -0.13, lat: 51.51, al: 'r', ids: 1 },
+         { n: 'Paris', lon: 2.35, lat: 48.86, al: 'r', ids: 1 },
+         { n: 'The Saar', lon: 6.99, lat: 49.23, al: 'r', ids: 1 }] },
+};
+const DANUBE = [[8.5,47.95],[9.2,48.05],[10.0,48.4],[11.42,48.76],[12.1,49.02],[12.57,48.88],[12.96,48.83],[13.46,48.57],[14.29,48.31],[15.33,48.23],[15.6,48.41],[16.05,48.33],[16.37,48.21],[17.1,48.14],[18.12,47.76],[18.74,47.79],[19.06,47.74],[19.04,47.5],[18.95,46.9],[18.68,45.99],[19.0,45.35],[19.85,45.25],[20.46,44.82]];
+const FRONT = [[2.75,51.13],[2.88,50.85],[2.95,50.55],[2.78,50.29],[2.93,49.93],[3.0,49.58],[3.32,49.38],[4.03,49.25],[4.9,49.2],[5.38,49.16],[5.54,48.89],[6.05,48.9],[6.6,48.58],[7.0,48.2],[7.05,47.85],[7.17,47.5]];
+
+// ── card markup ─────────────────────────────────────────────────────────────
+const longest = (s) => Math.max(6, ...s.split(/\s+/).map(w => w.length));
+const HOUR = (id) => pad(6 + (id * 7) % 13) + '.' + pad((id * 17) % 60);
+function face(c, cls, attrs, style) {
+  const t = c.phase, num = pad(c.id);
+  const a = `class="nface t${t} ${cls || ''}" data-card="${c.id}" style="--L:${longest(c.op)};${style || ''}" ${attrs || ''}`;
+  const name = esc(c.op);
+  if (t === 1) return `<div ${a}><div class="s-in"><div class="s-chk"></div><svg class="s-dome" viewBox="0 0 100 70" aria-hidden="true"><use href="#dome"/></svg><div class="s-mid"><div class="s-lab">Operation</div><div class="nf-name">${name}</div><div class="s-rule"></div></div><div class="s-meta">${ROMAN[t]} · ${num}</div><div class="s-chk"></div></div></div>`;
+  if (t === 2) return `<div ${a}><div class="tg-h">Telegram<small>Field service · Directorate</small></div><div class="tg-f"><span>No. ${num}</span><span>Words 2</span><span>${HOUR(c.id)}</span></div><div class="tg-tapes"><span class="tape l">Operation</span><span class="tape nf-name">${name}</span></div><div class="tg-stamp">Passed<br>by censor</div><div class="tg-foot">II · ${num}</div></div>`;
+  if (t === 3) return `<div ${a}><i class="b-c"></i><i class="b-bar"></i><i class="b-sq"></i><i class="b-ln"></i><div class="b-meta">iii / ${num}</div><div class="b-txt"><div class="b-lab">operation</div><div class="nf-name">${name}</div></div></div>`;
+  return `<div ${a}><i class="d-holes"></i><div class="d-head"><span>File</span><span>TID/IV/${num}</span></div><div class="d-stamp">Most secret</div><div class="d-label"><span>Operation</span><b class="nf-name">${name}</b></div><div class="d-route"><span>Seen by</span><span>Date</span></div></div>`;
+}
+function tcard(c, cls) {
+  const t = c.phase, num = pad(c.id);
+  const head = {
+    1: `<div class="tc-head">Temporal Intelligence Directorate</div>`,
+    2: `<div class="tc-head"><b>Telegram</b><span>Temporal Intelligence Directorate · Field Operations</span></div><div class="tc-stamp">Passed<br>by censor</div>`,
+    3: `<div class="tc-head">temporal intelligence directorate · field operations</div>`,
+    4: `<div class="tc-head"><span>Temporal Intelligence Directorate</span><span>File TID/IV/${num}</span></div><div class="tc-stamp">Most secret</div>`,
+  }[t];
+  const series = c.series ? `<div class="tc-series">${esc(c.series)} series</div>` : '';
+  return `<article class="tcard t${t} ${cls || ''}" data-card="${c.id}" aria-label="Operation ${esc(c.op)}">${head}
+    <div class="tc-op"><div class="tc-lab">Operation</div><h3 class="tc-name">${esc(c.op)}</h3><div class="tc-var">${esc(c.variant)}</div>${series}</div>
+    <section class="tc-mission"><div class="tc-sec">Mission</div><p class="tc-txt">${esc(c.mission)}</p></section>
+    <section class="tc-comp"><div class="tc-sec">Complication</div><p class="tc-txt">${esc(c.complication)}</p></section>
+    <div class="tc-foot">Series Γ · Card ${num} of ${CARDS.length} · For Authorized Eyes Only</div></article>`;
+}
+function flipCard(c, id, tcls) { return `<div class="flip down" id="${id}"><div class="flip-inner">${tcard(c, tcls)}<div class="face-back">${face(c, 'fill')}</div></div></div>`; }
+function turnOver(id, delay) { setTimeout(() => { const f = $(id); if (f) f.classList.remove('down'); }, reduce ? 0 : (delay == null ? 250 : delay)); }
+function chip(id, extra, asButton) {
+  const c = byId(id), tag = asButton ? 'button' : 'span';
+  return `<${tag} class="chip2 t${c.phase} ${extra || ''}" data-cid="${id}" ${asButton ? `type="button" title="Read OPERATION ${esc(c.op)}"` : ''}>${esc(c.op)}</${tag}>`;
+}
+function cart(r, small) {
+  const R = RD[r], k = `Round ${ROMAN[r]} · ${R.title}`, w = R.places.map(p => p.n).join(' · ');
+  if (r === 4) return `<div class="cart t4 ${small ? 'small' : ''} rise"><span class="st">Most secret</span><div class="k">Sheet ${ROMAN[r]} · ${R.title}</div><div class="p">${R.place} · ${R.years}</div><div class="w">${esc(w)}</div></div>`;
+  if (r === 3) return `<div class="cart t3 ${small ? 'small' : ''} rise"><div class="k">${k}</div><div class="p">${esc(R.place)}</div><div class="y">${R.years}</div><div class="w">${esc(w)}</div></div>`;
+  if (r === 2) return `<div class="cart t2 ${small ? 'small' : ''} rise"><div class="k">${k}</div><div class="p">${esc(R.place)}</div><div class="y">${R.years}</div><div class="w">${esc(w)}</div></div>`;
+  return `<div class="cart t1 ${small ? 'small' : ''} rise"><div class="k">${k}</div><div class="p">${esc(R.place)}</div><div class="y">${R.years}</div><div class="w">${esc(w)}</div></div>`;
+}
+
+// ── state ───────────────────────────────────────────────────────────────────
+const S = { step: 0, gen: 0, timer: null, interrogator: null, fast: false, instant: false };
+let RS = {}, F = null;
+function newRound(r) {
+  return { r, spread: shuffle(CARDS.filter(c => c.phase === r && !c.meta).map(c => c.id)), home: {}, held: r === 4 ? 40 : null,
+    hands: { fn: [], er: [], ib: [], you: [] }, kept: {}, back: {}, log: [], n: 0, t: 0, wait: null, thinking: null, auto: false, done: false, offer: null,
+    ballot: [], ballots: {}, sampleYou: false, totals: null, winners: [] };
+}
+function newGame() { RS = { 1: newRound(1), 2: newRound(2), 3: newRound(3), 4: newRound(4) }; F = null; S.interrogator = null; }
+newGame();
+const order = (r) => { const k = (r - 1) % 4; return ORDER.slice(k).concat(ORDER.slice(0, k)); };
+const SEQ = (r) => { const o = order(r); return o.concat(o.slice().reverse()); };
+const pace = (ms) => (reduce || S.instant) ? 0 : S.fast ? ms / 4 : ms;
+const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+// ── the mat: a period map of the round's places, painted on canvas ──────────
+const LAND = (function () {
+  const { cols, rows, data } = CE, a = new Uint8Array(cols * rows);
+  data.forEach((h, r) => { for (let i = 0; i < h.length; i++) { const v = parseInt(h[i], 16); for (let b = 0; b < 4; b++) { const c = i * 4 + b; if (c < cols && ((v >> (3 - b)) & 1)) a[r * cols + c] = 1; } } });
+  return a;
+})();
+function projector(ext, W, H) {
+  const lat0 = (ext[2] + ext[3]) / 2, k = Math.cos(lat0 * Math.PI / 180);
+  const s = Math.max(W / ((ext[1] - ext[0]) * k), H / (ext[3] - ext[2]));
+  const cx = (ext[0] + ext[1]) / 2;
+  return { s, x: (lon) => W / 2 + (lon - cx) * k * s, y: (lat) => H / 2 - (lat - lat0) * s };
+}
+function landRuns(g, P, W, H) {
+  const { cols, rows, lon0, lat1, step } = CE;
+  for (let r = 0; r < rows; r++) {
+    const y0 = P.y(lat1 - r * step), y1 = P.y(lat1 - (r + 1) * step);
+    if (y1 < 0 || y0 > H) continue;
+    let c = 0;
+    while (c < cols) {
+      if (!LAND[r * cols + c]) { c++; continue; }
+      const c0 = c; while (c < cols && LAND[r * cols + c]) c++;
+      const x0 = P.x(lon0 + c0 * step), x1 = P.x(lon0 + c * step);
+      if (x1 >= 0 && x0 <= W) g.fillRect(x0, y0, x1 - x0 + .6, y1 - y0 + .6);
+    }
+  }
+}
+function landDots(P, W, H, every, fn) {
+  const { cols, rows, lon0, lat1, step } = CE;
+  for (let r = 0; r < rows; r += every) for (let c = 0; c < cols; c += every) {
+    if (!LAND[r * cols + c]) continue;
+    const x = P.x(lon0 + (c + .5) * step), y = P.y(lat1 - (r + .5) * step);
+    if (x > -12 && y > -12 && x < W + 12 && y < H + 12) fn(x, y);
+  }
+}
+function path(g, P, pts) { g.beginPath(); pts.forEach((p, i) => { const x = P.x(p[0]), y = P.y(p[1]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); }
+function text(g, s, x, y, o) {
+  g.save(); g.font = o.font; g.fillStyle = o.color; g.textAlign = o.align || 'left'; g.textBaseline = 'middle';
+  if ('letterSpacing' in g) g.letterSpacing = o.ls || '0px';
+  if (o.halo) { g.lineWidth = 4; g.strokeStyle = o.halo; g.lineJoin = 'round'; g.strokeText(s, x, y); }
+  g.fillText(s, x, y); g.restore();
+}
+function placeLabels(g, P, r, o) {
+  RD[r].places.forEach(p => {
+    const x = P.x(p.lon), y = P.y(p.lat);
+    o.pin(g, x, y, p);
+    const dx = p.al === 'l' ? -o.off : o.off;
+    text(g, o.upper ? p.n.toUpperCase() : (o.lower ? p.n.toLowerCase() : p.n), x + dx, y + (p.dy || 0), { font: o.font, color: o.color, align: p.al === 'l' ? 'right' : 'left', ls: o.ls, halo: o.halo });
+  });
+}
+const PAINT = {
+  1(g, W, H) {   // Vienna Secession: gold squares on black, the Danube, a checker border
+    g.fillStyle = '#13120e'; g.fillRect(0, 0, W, H);
+    const P = projector(RD[1].ext, W, H), cell = CE.step * P.s * 2;
+    g.fillStyle = 'rgba(200,160,70,.30)';
+    landDots(P, W, H, 2, (x, y) => g.fillRect(x - cell * .27, y - cell * .27, cell * .54, cell * .54));
+    g.strokeStyle = 'rgba(226,196,108,.55)'; g.lineWidth = 2; g.lineJoin = 'round'; path(g, P, DANUBE); g.stroke();
+    const mid = DANUBE[13]; text(g, 'DANUBE', P.x(mid[0]) + 6, P.y(mid[1]) + 14, { font: '11px Federo', color: 'rgba(226,196,108,.6)', ls: '4px' });
+    const q = 9;
+    for (let x = 14; x < W - 14; x += q * 2) { g.fillStyle = 'rgba(180,138,44,.5)'; g.fillRect(x, 12, q, q); g.fillRect(x + q, H - 12 - q, q, q); }
+    for (let y = 14 + q * 2; y < H - 14 - q * 2; y += q * 2) { g.fillRect(12, y, q, q); g.fillRect(W - 12 - q, y + q, q, q); }
+    placeLabels(g, P, 1, { off: 11, font: '14px Federant', color: '#e2c46c', ls: '1.5px', halo: 'rgba(19,18,14,.85)', upper: true,
+      pin: (g, x, y) => { g.fillStyle = '#e2c46c'; g.fillRect(x - 5, y - 5, 10, 10); g.fillStyle = '#13120e'; g.fillRect(x - 2, y - 2, 4, 4); } });
+  },
+  2(g, W, H) {   // field telegram: olive canvas, a wire network, the Western Front
+    g.fillStyle = '#2b2f22'; g.fillRect(0, 0, W, H);
+    g.fillStyle = 'rgba(255,255,255,.025)'; for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
+    g.fillStyle = 'rgba(0,0,0,.05)'; for (let x = 0; x < W; x += 3) g.fillRect(x, 0, 1, H);
+    const P = projector(RD[2].ext, W, H);
+    g.fillStyle = 'rgba(234,220,178,.12)'; landRuns(g, P, W, H);
+    g.save(); g.strokeStyle = 'rgba(205,98,62,.85)'; g.lineWidth = 3; g.setLineDash([7, 5]); path(g, P, FRONT); g.stroke(); g.restore();
+    const f = FRONT[4]; text(g, 'WESTERN FRONT', P.x(f[0]) + 12, P.y(f[1]), { font: 'bold 11px "Courier Prime"', color: 'rgba(230,140,110,.95)', ls: '2px', halo: 'rgba(43,47,34,.9)' });
+    const pl = (n) => RD[2].places.find(p => p.n === n);
+    const wires = [['Vienna', 'Munich'], ['Munich', 'Württemberg'], ['Württemberg', 'Wervik'], ['Vienna', 'Sarajevo']];
+    g.strokeStyle = 'rgba(234,220,178,.55)'; g.lineWidth = 1.3;
+    wires.forEach(([a, b]) => {
+      const A = pl(a), B = pl(b), x1 = P.x(A.lon), y1 = P.y(A.lat), x2 = P.x(B.lon), y2 = P.y(B.lat);
+      g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+      const len = Math.hypot(x2 - x1, y2 - y1), nx = -(y2 - y1) / len, ny = (x2 - x1) / len;
+      for (let d = 18; d < len - 10; d += 22) { const px = x1 + (x2 - x1) * d / len, py = y1 + (y2 - y1) * d / len; g.beginPath(); g.moveTo(px - nx * 4, py - ny * 4); g.lineTo(px + nx * 4, py + ny * 4); g.stroke(); }
+    });
+    placeLabels(g, P, 2, { off: 11, font: 'bold 13px "Courier Prime"', color: '#eadcb2', ls: '1px', halo: 'rgba(43,47,34,.9)', upper: true,
+      pin: (g, x, y) => { g.strokeStyle = '#eadcb2'; g.lineWidth = 1.6; g.beginPath(); g.arc(x, y, 6, 0, 7); g.stroke(); g.fillStyle = '#eadcb2'; g.beginPath(); g.arc(x, y, 2.2, 0, 7); g.fill(); } });
+  },
+  3(g, W, H) {   // Bauhaus: flat land, primary circles, Munich to Berlin in one red stroke
+    g.fillStyle = '#191919'; g.fillRect(0, 0, W, H);
+    const P = projector(RD[3].ext, W, H);
+    g.fillStyle = '#2c2a26'; landRuns(g, P, W, H);
+    g.strokeStyle = 'rgba(243,240,232,.07)'; g.lineWidth = 2; g.beginPath(); g.arc(W * .78, H * .2, Math.min(W, H) * .5, 0, 7); g.stroke();
+    g.fillStyle = 'rgba(31,78,156,.35)'; g.fillRect(0, H - 10, W * .4, 10);
+    g.fillStyle = 'rgba(242,183,5,.5)'; g.fillRect(W - 10, 0, 10, H * .35);
+    const pl = (n) => RD[3].places.find(p => p.n === n), M = pl('Munich'), B = pl('Berlin');
+    g.strokeStyle = '#d7301f'; g.lineWidth = 7; g.lineCap = 'square'; g.beginPath(); g.moveTo(P.x(M.lon), P.y(M.lat)); g.lineTo(P.x(B.lon), P.y(B.lat)); g.stroke();
+    const col = { 'Munich': '#f2b705', 'Berlin': '#d7301f', 'Düsseldorf': '#3c6fd1', 'Bad Harzburg': '#f3f0e8', 'Paris · Versailles': '#f2b705' };
+    placeLabels(g, P, 3, { off: 14, font: '600 15px Jost', color: '#f3f0e8', ls: '0.5px', lower: true, halo: 'rgba(25,25,25,.85)',
+      pin: (g, x, y, p) => { g.fillStyle = col[p.n] || '#f3f0e8'; g.beginPath(); g.arc(x, y, 5 + p.ids * 1.6, 0, 7); g.fill(); } });
+  },
+  4(g, W, H) {   // Allied operations map: slate sea, khaki land, a lettered grid, red pins
+    g.fillStyle = '#1b2830'; g.fillRect(0, 0, W, H);
+    const P = projector(RD[4].ext, W, H);
+    g.fillStyle = '#39463b'; landRuns(g, P, W, H);
+    g.strokeStyle = 'rgba(232,223,192,.13)'; g.lineWidth = 1;
+    const fontS = '10px "Courier Prime"', colS = 'rgba(232,223,192,.55)';
+    for (let lon = -10; lon <= 30; lon += 2) { const x = P.x(lon); if (x < 0 || x > W) continue; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); text(g, Math.abs(lon) + '°' + (lon < 0 ? 'W' : 'E'), x + 3, 16, { font: fontS, color: colS }); }
+    for (let lat = 40; lat <= 60; lat += 2) { const y = P.y(lat); if (y < 0 || y > H) continue; g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); text(g, lat + '°N', 14, y - 7, { font: fontS, color: colS }); }
+    text(g, 'TID OPERATIONS MAP · SHEET IV · 1933–1945', W - 18, H - 16, { font: fontS, color: colS, align: 'right', ls: '1px' });
+    placeLabels(g, P, 4, { off: 11, font: 'bold 12px "Courier Prime"', color: '#ece3c4', ls: '1px', upper: true, halo: 'rgba(27,40,48,.85)',
+      pin: (g, x, y, p) => { const r = p.ids > 1 ? 7 : 5; g.fillStyle = '#d23a2a'; g.strokeStyle = '#f7f0dc'; g.lineWidth = 1.6; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.stroke(); } });
+  },
+};
+let matKey = '';
+function paintMat(force) {
+  const st = STEPS[S.step], m = st.mat || 'felt', wrap = $('centerwrap'), cv = $('matc');
+  wrap.className = 'centerwrap ' + (typeof m === 'number' ? 'mat' + m : m);
+  const W = wrap.clientWidth, H = wrap.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  const key = m + ':' + W + 'x' + H + ':' + dpr;
+  if (!force && key === matKey) return;
+  matKey = key;
+  if (typeof m !== 'number' || !W || !H) { cv.width = 1; cv.height = 1; cv.getContext('2d').clearRect(0, 0, 1, 1); cv.style.opacity = 0; return; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.opacity = 1;
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  try { PAINT[m](g, W, H); } catch (e) { /* the mat is decoration; never block the walkthrough */ }
+  if (!MATFONT_OK[m] && document.fonts && document.fonts.load) {
+    MATFONT_OK[m] = true;
+    Promise.all(MATFONTS[m].map(f => document.fonts.load(f).catch(() => null))).then(() => { if (matKey === key) paintMat(true); });
+  }
+}
+const MATFONTS = { 1: ['14px Federant', '11px Federo'], 2: ['bold 13px "Courier Prime"'], 3: ['600 15px Jost'], 4: ['bold 12px "Courier Prime"', '10px "Courier Prime"'] };
+const MATFONT_OK = {};
+let rz = 0;
+window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => paintMat(), 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => paintMat(true));
+
+// ── seats ───────────────────────────────────────────────────────────────────
+function seatHTML(a, o) {
+  const R = o.r ? RS[o.r] : null, first = R && o.first !== false && order(o.r)[0] === a;
+  let ord = '';
+  if (R && o.draft) { const s = SEQ(o.r); ord = `Picks ${s.indexOf(a) + 1} · ${s.lastIndexOf(a) + 1}`; }
+  const hand = !R ? [] : o.draft ? R.hands[a] : (R.kept[a] ? [R.kept[a]] : []);
+  const chips = hand.map(id => chip(id, o.draft && R.kept[a] === id ? 'kept' : '', a === 'you')).join('');
+  const cls = ['seat', a === 'you' ? 'you' : '', o.glow === a ? 'glow' : '', o.asks === a ? 'asks' : '', R && o.draft && R.thinking === a ? 'think' : '', R && o.draft && R.offer && R.offer.status === 'pending' && R.offer.to === a ? 'offer' : ''].join(' ');
+  const pts = o.pts && o.pts[a] != null ? `${o.pts[a]} pts` : '';
+  return `<div class="${cls}" data-seat="${a}"><div class="plate">${first ? '<i class="tok" title="First pick this round">1st</i>' : ''}${a === 'you' ? 'You · ' : ''}${AG[a].name}</div>${ord ? `<div class="ord">${ord}</div>` : ''}<div class="hand" data-hand="${a}">${chips}</div>${o.nopts ? '' : `<div class="pts">${pts}</div>`}</div>`;
+}
+function seats(o) {
+  o = o || {};
+  $('seats').innerHTML = OTHERS.map(a => seatHTML(a, o)).join('');
+  $('me').innerHTML = seatHTML('you', Object.assign({}, o, { nopts: !(o.pts && o.pts.you != null) })) + (o.meExtra || '');
+}
+
+// ── timer (advisory: counts down, chimes, never skips) ─────────────────────
+let audio = null;
+function chime() { try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); const t = audio.currentTime; [660, 880].forEach((f, i) => { const o = audio.createOscillator(), g = audio.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t + i * .18); g.gain.exponentialRampToValueAtTime(0.12, t + i * .18 + .02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * .18 + .9); o.connect(g); g.connect(audio.destination); o.start(t + i * .18); o.stop(t + i * .18 + 1); }); } catch (e) {} }
+const fmt = (s) => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+function timerHTML(secs) {
+  return `<div class="timer" id="timer"><div class="dial" id="dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/><circle id="arc" cx="50" cy="50" r="44" fill="none" stroke="#e6c77a" stroke-width="6" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><div class="t" id="tt">${fmt(secs)}</div></div>
+    <div class="inline-actions"><button class="btn ghost" type="button" id="tStart">Start clock · Space</button><button class="btn ghost" type="button" id="tFast">Fast-forward</button></div></div>`;
+}
+function bindTimer(total) {
+  stopTimer();
+  const T = S.timer = { total, left: total, run: false, speed: 1, last: 0, raf: 0 };
+  const draw = () => { $('tt').textContent = fmt(T.left); $('arc').setAttribute('stroke-dashoffset', String(276.5 * (1 - T.left / T.total))); $('dial').classList.toggle('zero', T.left <= 0); };
+  const tick = (now) => { if (!T.run || !$('tt')) return; const dt = (now - T.last) / 1000; T.last = now; T.left = Math.max(0, T.left - dt * T.speed); draw(); if (T.left <= 0) { T.run = false; chime(); $('tStart').textContent = 'Time · Reset'; return; } T.raf = requestAnimationFrame(tick); };
+  T.toggle = () => { if (T.left <= 0) { T.left = T.total; draw(); $('tStart').textContent = 'Start · Space'; return; } T.run = !T.run; $('tStart').textContent = T.run ? 'Pause · Space' : 'Resume · Space'; if (T.run) { T.last = performance.now(); T.raf = requestAnimationFrame(tick); } };
+  $('tStart').addEventListener('click', T.toggle);
+  $('tFast').addEventListener('click', () => { T.speed = T.speed === 1 ? 12 : 1; $('tFast').textContent = T.speed === 1 ? 'Fast-forward' : 'Real time'; if (!T.run) T.toggle(); });
+  draw();
+}
+function stopTimer() { if (S.timer) { S.timer.run = false; cancelAnimationFrame(S.timer.raf); S.timer = null; } }
+
+// ── flying cards ────────────────────────────────────────────────────────────
+function fly(fromR, toEl, html, size) {
+  if (!fromR || !toEl || reduce || S.instant) return Promise.resolve();
+  const toR = toEl.getBoundingClientRect();
+  if (!toR.width) return Promise.resolve();
+  const w = size.w, h = size.h, gh = document.createElement('div');
+  gh.className = 'flyer'; gh.style.width = w + 'px'; gh.style.height = h + 'px'; gh.innerHTML = html;
+  $('ghosts').appendChild(gh);
+  const small = (R) => R.height < h * .5;
+  const tf = (R) => { const s = small(R) ? Math.min(R.width / w, R.height * 2.6 / h) : Math.max(R.width / w, R.height / h); return `translate(${R.left + R.width / 2 - w * s / 2}px, ${R.top + R.height / 2 - h * s / 2}px) scale(${s})`; };
+  toEl.style.visibility = 'hidden';
+  const an = gh.animate([{ transform: tf(fromR), opacity: small(fromR) ? .25 : 1 }, { transform: tf(toR), opacity: small(toR) ? .2 : 1 }], { duration: pace(560) || 1, easing: 'cubic-bezier(.3,.7,.2,1)' });
+  return an.finished.catch(() => {}).then(() => { gh.remove(); toEl.style.visibility = ''; });
+}
+function faceSize() { const s = document.querySelector('#spread .sl'); const R = s ? s.getBoundingClientRect() : null; return R && R.width ? { w: R.width, h: R.height } : { w: 140, h: 196 }; }
+
+// ── the draft: pick two by name, keep one, put one back ────────────────────
+function curTurn(R) {
+  while (R.t < 8) {
+    const a = SEQ(R.r)[R.t], h = R.hands[a];
+    if (R.t < 4) { if (!h.length) return { a, need: 'pick' }; R.t++; continue; }
+    if (R.kept[a]) { R.t++; continue; }
+    return { a, need: h.length >= 2 ? 'keep' : 'pick' };
+  }
+  return null;
+}
+const available = (R) => R.spread.filter(Boolean);
+async function take(r, a, id) {
+  const R = RS[r], slot = R.spread.indexOf(id); if (slot < 0) return;
+  const src = document.querySelector(`#spread [data-card="${id}"]`), from = src ? src.getBoundingClientRect() : null;
+  R.spread[slot] = null; R.home[id] = slot; R.hands[a].push(id); R.n++;
+  R.log.push({ n: R.n, a, act: 'take', id });
+  refreshDraft(r);
+  await fly(from, document.querySelector(`[data-hand="${a}"] [data-cid="${id}"]`), face(byId(id), 'fill'), faceSize());
+}
+async function keep(r, a, k, ret) {
+  const R = RS[r];
+  const src = document.querySelector(`[data-hand="${a}"] [data-cid="${ret}"]`), from = src ? src.getBoundingClientRect() : null;
+  R.hands[a] = [k]; R.kept[a] = k; R.back[a] = ret; R.spread[R.home[ret]] = ret;
+  R.log.push({ a, act: 'keep', id: k, ret });
+  refreshDraft(r);
+  await fly(from, document.querySelector(`#spread [data-card="${ret}"]`), face(byId(ret), 'fill'), faceSize());
+}
+async function resolveOffer(r, yes) {
+  const R = RS[r], a = R.offer.to;
+  if (yes) {
+    const old = R.kept[a], heldEl = document.querySelector('#spread [data-card="40"]'), from = heldEl ? heldEl.getBoundingClientRect() : null;
+    const oldEl = document.querySelector(`[data-hand="${a}"] [data-cid="${old}"]`), from2 = oldEl ? oldEl.getBoundingClientRect() : null;
+    R.held = null; R.kept[a] = 40; R.hands[a] = [40]; R.back[a] = old; R.spread[R.home[old]] = old;
+    R.offer.status = 'taken'; R.offer.ret = old; R.log.push({ a, act: 'swap', id: 40, ret: old });
+    refreshDraft(r);
+    await Promise.all([fly(from, document.querySelector(`[data-hand="${a}"] [data-cid="40"]`), face(byId(40), 'fill'), faceSize()),
+      fly(from2, document.querySelector(`#spread [data-card="${old}"]`), face(byId(old), 'fill'), faceSize())]);
+  } else { R.offer.status = 'declined'; R.log.push({ a, act: 'decline', id: 40 }); refreshDraft(r); }
+}
+async function runDraft(r) {
+  const R = RS[r], gen = S.gen, tag = gen + ':' + r;
+  if (S.running === tag) return; S.running = tag;
+  try {
+    for (;;) {
+      if (gen !== S.gen) return;
+      const tn = curTurn(R);
+      if (!tn) break;
+      if (tn.a === 'you' && !R.auto) { R.wait = tn.need; R.thinking = null; refreshDraft(r); if (tn.need === 'keep') openChoose(r); return; }
+      R.wait = null; R.thinking = tn.a; refreshDraft(r);
+      await wait(pace(tn.need === 'pick' ? 800 : 700)); if (gen !== S.gen) return;
+      if (tn.need === 'pick') await take(r, tn.a, rand(available(R)));
+      else { const h = R.hands[tn.a], k = Math.random() < .5 ? 0 : 1; await keep(r, tn.a, h[k], h[1 - k]); }
+    }
+    R.thinking = null;
+    if (r === 4 && !R.offer) { R.offer = { to: rand(ORDER), status: 'pending' }; R.log.push({ a: R.offer.to, act: 'offer', id: 40 }); refreshDraft(r); }
+    if (r === 4 && R.offer.status === 'pending') {
+      if (R.offer.to === 'you' && !R.auto) { R.wait = 'offer'; refreshDraft(r); openOffer(r); return; }
+      R.thinking = R.offer.to; refreshDraft(r);
+      await wait(pace(1300)); if (gen !== S.gen) return;
+      R.thinking = null; await resolveOffer(r, Math.random() < .55); if (gen !== S.gen) return;
+    }
+    R.wait = null; R.done = true; refreshDraft(r);
+  } finally { if (S.running === tag) S.running = null; }
+}
+function youPick(r, id) { const R = RS[r]; if (R.wait !== 'pick' || !R.spread.includes(id)) return; R.wait = null; take(r, 'you', id).then(() => runDraft(r)); }
+function youKeep(r, k) { const R = RS[r]; if (R.wait !== 'keep') return; const ret = R.hands.you.find(x => x !== k); R.wait = null; closeModal(); keep(r, 'you', k, ret).then(() => runDraft(r)); }
+function youOffer(r, yes) { const R = RS[r]; if (R.wait !== 'offer') return; R.wait = null; closeModal(); resolveOffer(r, yes).then(() => runDraft(r)); }
+function pickForMe(r) {
+  const R = RS[r];
+  if (R.wait === 'pick') youPick(r, rand(available(R)));
+  else if (R.wait === 'keep') youKeep(r, rand(R.hands.you));
+  else if (R.wait === 'offer') youOffer(r, Math.random() < .5);
+}
+function autoRound(r) { const R = RS[r]; R.auto = true; S.fast = true; if (R.wait) { const w = R.wait; R.wait = null; if (w === 'pick') take(r, 'you', rand(available(R))).then(() => runDraft(r)); else if (w === 'keep') { closeModal(); const h = R.hands.you, k = rand(h); keep(r, 'you', k, h.find(x => x !== k)).then(() => runDraft(r)); } else { closeModal(); resolveOffer(r, Math.random() < .5).then(() => runDraft(r)); } } else runDraft(r); }
+
+function spreadHTML(r) {
+  const R = RS[r], live = R.wait === 'pick';
+  let html = R.spread.map((id, i) => id
+    ? `<div class="sl" data-slot="${i}">${face(byId(id), '', live ? `tabindex="0" role="button" aria-label="Pick up OPERATION ${esc(op(id))}"` : '', `--rot:${((id * 37) % 7 - 3) * .8}deg`)}</div>`
+    : `<div class="sl empty" data-slot="${i}"></div>`).join('');
+  if (r === 4) html += R.held ? `<div class="sl" data-slot="held">${face(byId(40), 'held', '', '--rot:2deg')}<div class="heldcap">Offered after the draft</div></div>` : `<div class="sl empty" data-slot="held"></div>`;
+  return `<div class="spread ${live ? 'live' : ''}" id="spread">${html}</div>`;
+}
+function logLine(e) {
+  const name = (id) => `<strong>${esc(op(id))}</strong>`;
+  if (e.act === 'take') return `<li><b>${e.n}</b><span>${who(e.a)} ${verb(e.a, 'takes', 'take')} ${name(e.id)}</span></li>`;
+  if (e.act === 'keep') return `<li class="k"><b>·</b><span>${who(e.a)} ${verb(e.a, 'keeps', 'keep')} ${name(e.id)}, ${verb(e.a, 'puts', 'put')} back ${name(e.ret)}</span></li>`;
+  if (e.act === 'offer') return `<li class="k"><b>★</b><span>GÖTTERDÄMMERUNG is offered to ${whoL(e.a)}</span></li>`;
+  if (e.act === 'swap') return `<li class="k"><b>★</b><span>${who(e.a)} ${verb(e.a, 'takes', 'take')} it and ${verb(e.a, 'puts', 'put')} back ${name(e.ret)}</span></li>`;
+  return `<li class="k"><b>★</b><span>${who(e.a)} ${verb(e.a, 'declines', 'decline')}. It stays held back.</span></li>`;
+}
+function draftStatus(R) {
+  if (R.done) return `<div class="status">Draft complete · Next when ready</div>`;
+  if (R.wait === 'pick') return `<div class="status you">${R.hands.you.length ? 'Your second pick. Click a card on the table.' : 'Your pick. Click a card on the table.'}</div>`;
+  if (R.wait === 'keep') return `<div class="status you">Read both. Keep one, put one back.</div>`;
+  if (R.wait === 'offer') return `<div class="status you">GÖTTERDÄMMERUNG is offered to you</div>`;
+  if (R.thinking) return `<div class="status">${AG[R.thinking].name} is ${R.offer && R.offer.status === 'pending' ? 'deciding' : 'choosing'}…</div>`;
+  return `<div class="status">The draft is starting…</div>`;
+}
+function draftControls(R) {
+  if (R.done) return '';
+  return `<div class="inline-actions"><button class="btn ghost sm" type="button" id="dPick" ${R.wait ? '' : 'disabled'}>Pick for me</button><button class="btn ghost sm" type="button" id="dAuto">Let the table play this round</button><button class="btn ghost sm" type="button" id="dFast">${S.fast ? 'Normal speed' : 'Faster'}</button></div>`;
+}
+function bindDraftControls(r) {
+  if ($('dPick')) $('dPick').onclick = () => pickForMe(r);
+  if ($('dAuto')) $('dAuto').onclick = () => autoRound(r);
+  if ($('dFast')) $('dFast').onclick = () => { S.fast = !S.fast; $('dFast').textContent = S.fast ? 'Normal speed' : 'Faster'; };
+}
+function meExtra(r) {
+  const R = RS[r];
+  if (R.wait === 'keep') return `<button class="btn red sm" type="button" id="reopen">Choose your card</button>`;
+  if (R.wait === 'offer') return `<button class="btn red sm" type="button" id="reopen">Answer the offer</button>`;
+  if (R.hands.you.length && !R.done) return `<span class="caption">Click your card to read it</span>`;
+  return '';
+}
+function refreshDraft(r) {
+  const st = STEPS[S.step]; if (!(st.draft && st.round === r)) return;
+  const R = RS[r];
+  const sp = $('spread'); if (sp) sp.outerHTML = spreadHTML(r);
+  seats({ r, draft: true, meExtra: meExtra(r) });
+  if ($('reopen')) $('reopen').onclick = () => (R.wait === 'offer' ? openOffer(r) : openChoose(r));
+  if ($('dstat')) $('dstat').innerHTML = draftStatus(R);
+  if ($('dctl')) { $('dctl').innerHTML = draftControls(R); bindDraftControls(r); }
+  if ($('dlog')) { $('dlog').innerHTML = R.log.map(logLine).join(''); $('dlog').scrollTop = 1e5; }
+  updateNav();
+}
+function openChoose(r) {
+  const R = RS[r], h = R.hands.you; if (h.length < 2) return;
+  openModal('Your two cards · keep one', '', `<div class="viewer two"><div class="hint">Turn them over, read both, and keep one. The other goes back on the table, face up.</div>${h.map((id, i) => `<div class="opt">${flipCard(byId(id), 'ch' + i)}<button class="btn red" type="button" data-keep="${id}">Keep OPERATION ${esc(op(id))}</button></div>`).join('')}</div>`);
+  turnOver('ch0', 350); turnOver('ch1', 650);
+  $('modalBody').querySelectorAll('[data-keep]').forEach(b => b.addEventListener('click', () => youKeep(r, +b.dataset.keep)));
+}
+function openOffer(r) {
+  const R = RS[r], mine = R.kept.you;
+  openModal('Held back · GÖTTERDÄMMERUNG', '', `<div class="viewer two"><div class="hint">You may swap the card you kept for the one that was held back.</div>
+    <div class="opt">${flipCard(byId(40), 'of0')}<button class="btn red" type="button" id="ofYes">Take GÖTTERDÄMMERUNG</button></div>
+    <div class="opt">${flipCard(byId(mine), 'of1')}<button class="btn" type="button" id="ofNo">Keep OPERATION ${esc(op(mine))}</button></div></div>`);
+  turnOver('of0', 350); turnOver('of1', 650);
+  $('ofYes').addEventListener('click', () => youOffer(r, true)); $('ofNo').addEventListener('click', () => youOffer(r, false));
+}
+
+// ── ballots and the count ───────────────────────────────────────────────────
+const CRITERIA = `<div class="criteria"><div class="lab">Voting criteria</div><ol>
+  <li><b>I</b><span><strong>Which plan successfully stops Hitler without producing an equal or greater catastrophe?</strong></span></li>
+  <li><b>II</b><span><strong>Which plan requires the least moral compromise from the agent carrying it out?</strong></span></li></ol></div>`;
+const PLACE = ['First', 'Second', 'Third'], SHORT = ['1st', '2nd', '3rd'];
+function countRound(r) {
+  const R = RS[r];
+  OTHERS.forEach(v => { R.ballots[v] = shuffle(ORDER.filter(a => a !== v)).slice(0, 3); });
+  const t = { fn: 0, er: 0, ib: 0, you: 0 };
+  ORDER.forEach(v => R.ballots[v].forEach((a, i) => { t[a] += 3 - i; }));
+  R.totals = t; const max = Math.max(...ORDER.map(a => t[a]));
+  R.winners = order(r).filter(a => t[a] === max);
+  F = null;
+}
+function cast(r, sample) { const R = RS[r]; if (sample) { R.ballot = shuffle(OTHERS).slice(0, 3); R.sampleYou = true; } R.ballots.you = R.ballot.slice(); countRound(r); }
+function ballotScene(r) {
+  const R = RS[r], done = !!R.ballots.you, rank = (a) => R.ballot.indexOf(a);
+  const cards = order(r).map(a => {
+    const id = R.kept[a];
+    if (a === 'you') return `<div class="pitched">${face(byId(id), 'sm dim')}<div class="who">Yours<small>not on your ballot</small></div><button class="readbtn" type="button" data-read="${id}">Read</button></div>`;
+    const i = rank(a);
+    return `<div class="pitched" data-vote="${a}">${i >= 0 ? `<div class="rankbadge">${SHORT[i]}<small>${3 - i} pts</small></div>` : ''}${face(byId(id), 'sm' + (i >= 0 ? ' sel' : ''), `tabindex="0" role="button" aria-label="Rank OPERATION ${esc(op(id))}"`)}<div class="who">${AG[a].name}</div><button class="readbtn" type="button" data-read="${id}">Read</button></div>`;
+  }).join('');
+  const lines = [0, 1, 2].map(i => { const a = R.ballot[i]; return `<li><span class="r">${PLACE[i]}</span><span>${a ? AG[a].name + ' · ' + esc(op(R.kept[a])) : '<span class="blank">—</span>'}</span><span class="p">${3 - i} pts</span></li>`; }).join('');
+  return `<div class="row">${cards}</div>
+    <div class="ballot-form"><h3><span>Secret ballot · Round ${ROMAN[r]}</span><span>Agent PALIMPSEST</span></h3><ol>${lines}</ol>
+    <div class="inline-actions" style="margin-top:.7rem"><button class="btn" type="button" id="cast" ${R.ballot.length === 3 && !done ? '' : 'disabled'}>Cast ballot</button><button class="btn ghost" type="button" id="clear" ${R.ballot.length && !done ? '' : 'disabled'}>Clear</button>${r > 1 && !done ? '<button class="btn ghost" type="button" id="sampleMe">Sample ballot for me</button>' : ''}</div>
+    ${done ? '<div class="stamp" style="right:1.2rem;bottom:1rem">Cast</div>' : ''}</div>`;
+}
+function bindBallot(r) {
+  const R = RS[r];
+  if (!R.ballots.you) document.querySelectorAll('[data-vote]').forEach(el => {
+    const a = el.dataset.vote, card = el.querySelector('.nface');
+    const act = (e) => { e.preventDefault(); const i = R.ballot.indexOf(a); if (i >= 0) R.ballot.splice(i, 1); else if (R.ballot.length < 3) R.ballot.push(a); render(); };
+    card.addEventListener('click', act); card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') act(e); });
+  });
+  if ($('cast')) $('cast').addEventListener('click', () => { cast(r); render(); });
+  if ($('clear')) $('clear').addEventListener('click', () => { R.ballot = []; render(); });
+  if ($('sampleMe')) $('sampleMe').addEventListener('click', () => { cast(r, true); render(); });
+}
+function countScene(r) {
+  const R = RS[r];
+  const slips = ORDER.map(v => `<div class="slip ${v === 'you' && !R.sampleYou ? '' : 'rand'}"><b>${v === 'you' ? 'Your ballot' : AG[v].name}</b>${R.ballots[v].map((a, i) => `${SHORT[i]} ${AG[a].name}`).join(' · ')}</div>`).join('');
+  const lines = ORDER.slice().sort((a, b) => R.totals[b] - R.totals[a]).map(a => `<div class="line ${R.winners.includes(a) ? 'win' : ''}"><div class="name">${who(a)}${R.winners.includes(a) ? '<span class="adv">Advances</span>' : ''}<small>${esc(op(R.kept[a]))}</small></div><div class="bar"><i data-w="${(R.totals[a] / 9 * 100).toFixed(1)}"></i></div><div class="tot">${R.totals[a]}</div></div>`).join('');
+  return `<div class="panel rise"><div class="caption">Ballots</div><div class="ballots" style="margin:.5rem 0 .9rem">${slips}</div><div class="caption" style="margin-bottom:.5rem">Round ${ROMAN[r]} totals · maximum 9</div><div class="tally">${lines}</div></div>`;
+}
+function growBars() { requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.tally .bar i').forEach(i => { i.style.width = i.dataset.w + '%'; }))); }
+function winnersText(r) {
+  const R = RS[r], w = R.winners;
+  if (w.length > 1) return `<em>A tie: ${w.map(who).join(' and ')}.</em> Both advance for now. When the final field is settled, the cut favors putting as many different agents in the final as possible. Last resort: a visible coin flip.`;
+  return `<em>${w[0] === 'you' ? 'You win' : AG[w[0]].name + ' wins'} Round ${ROMAN[r]}</em> and ${w[0] === 'you' ? 'go' : 'goes'} to the final with OPERATION ${esc(op(R.kept[w[0]]))}.`;
+}
+
+// ── the final ───────────────────────────────────────────────────────────────
+function cum(a) { return [1, 2, 3, 4].reduce((s, r) => s + (RS[r].totals ? RS[r].totals[a] : 0), 0); }
+function field() {
+  const sig = [1, 2, 3, 4].map(r => RS[r].winners.join(',') + '/' + RS[r].winners.map(a => RS[r].kept[a]).join(',')).join('|');
+  if (F && F.sig === sig) return F;
+  F = { sig, quals: [], wild: null, stage: 'auto', entries: [], log: [], ballot: [], ballots: {}, totals: null, winner: null, flipped: null, sampleYou: false };
+  [1, 2, 3, 4].forEach(r => RS[r].winners.forEach(a => F.quals.push({ holder: a, id: RS[r].kept[a], r, pts: RS[r].totals[a] })));
+  const q = new Set(F.quals.map(e => e.holder)), nonq = ORDER.filter(a => !q.has(a));
+  if (nonq.length) {
+    const best = Math.max(...nonq.map(cum)), tied = nonq.filter(a => cum(a) === best), w = rand(tied);
+    let br = 1; [2, 3, 4].forEach(r => { if (RS[r].totals[w] > RS[br].totals[w]) br = r; });
+    F.wild = { holder: w, id: RS[br].kept[w], r: br, pts: RS[br].totals[w], wild: true, tied: tied.length > 1 ? tied : null };
+    F.quals.push(F.wild);
+  }
+  F.multi = ORDER.filter(a => F.quals.filter(e => e.holder === a).length > 1);
+  F.recipients = ORDER.filter(a => !F.quals.some(e => e.holder === a));
+  F.stage = F.multi.includes('you') ? 'you' : 'auto';
+  if (F.stage === 'auto') settleAI();
+  return F;
+}
+const mine = (a) => F.quals.filter(e => e.holder === a);
+function settleAI() {
+  F.multi.filter(a => a !== 'you').forEach(a => {
+    const es = mine(a).slice().sort((x, y) => y.pts - x.pts || x.r - y.r);
+    es.forEach((e, i) => { if (i === 0) { e.arguer = a; return; } if (F.recipients.length) { const to = rand(F.recipients); F.recipients = F.recipients.filter(x => x !== to); e.arguer = to; e.passed = true; F.log.push({ a, act: 'pass', id: e.id, to }); } else { e.discard = true; F.log.push({ a, act: 'discard', id: e.id }); } });
+  });
+  F.quals.forEach(e => { if (!e.arguer && !e.discard) e.arguer = e.holder; });
+  F.entries = F.quals.filter(e => !e.discard).sort((x, y) => (x.wild ? 5 : x.r) - (y.wild ? 5 : y.r));
+  F.stage = 'done';
+}
+function youSettle(argueId, plan) {   // plan: { [id]: 'discard' | agentKey }
+  mine('you').forEach(e => {
+    if (e.id === argueId && !e.arguer) { e.arguer = 'you'; return; }
+    const to = plan[e.id];
+    if (to && to !== 'discard' && F.recipients.includes(to)) { F.recipients = F.recipients.filter(x => x !== to); e.arguer = to; e.passed = true; F.log.push({ a: 'you', act: 'pass', id: e.id, to }); }
+    else { e.discard = true; F.log.push({ a: 'you', act: 'discard', id: e.id }); }
+  });
+  settleAI();
+}
+const eligible = (v) => F.entries.filter(e => e.arguer !== v && e.holder !== v);
+function castFinal(sample) {
+  const ev = eligible('you'), k = Math.min(3, ev.length);
+  if (sample) { F.ballot = shuffle(ev.map(e => F.entries.indexOf(e))).slice(0, k); F.sampleYou = true; }
+  F.ballots.you = F.ballot.slice();
+  OTHERS.forEach(v => { const el = eligible(v); F.ballots[v] = shuffle(el.map(e => F.entries.indexOf(e))).slice(0, Math.min(3, el.length)); });
+  F.totals = F.entries.map(() => 0);
+  ORDER.forEach(v => F.ballots[v].forEach((i, j) => { F.totals[i] += 3 - j; }));
+  const max = Math.max(...F.totals), top = F.entries.map((e, i) => i).filter(i => F.totals[i] === max);
+  F.flipped = top.length > 1 ? top : null;
+  F.winner = rand(top);
+}
+const entryName = (e) => `OPERATION ${esc(op(e.id))}`;
+
+// ── steps ───────────────────────────────────────────────────────────────────
+const STEPS = [
+  { key: 'cover', label: 'Mission Dossiers', mat: 'felt',
+    brief: () => `<div class="kicker">Don't Kill Hitler · the card game</div><h1>Mission Dossiers</h1>
+      <div class="txt"><p>A debate game for four to seven players. Everyone is an agent of the Temporal Intelligence Directorate with a one-use, one-way time machine. One mission gets funded.</p>
+      <p>This walkthrough plays a whole game at a table of four: four rounds, a final, and the card nobody wants. About ten minutes, less if you let the table pick for you.</p>
+      <p class="memo">All agents are reminded that the machine is one way. You are not visiting. Plan accordingly.</p>
+      <p class="note">Arrow keys or the buttons below. The Deck button opens all forty cards at any time.</p></div>`,
+    scene: () => { seats({}); const ids = [10, 13, 22, 32];
+      return `<div class="fan">${ids.map((id, i) => face(byId(id), 'deal', '', `transform:rotate(${(i - 1.5) * 7}deg) translateY(${Math.abs(i - 1.5) * 10}px);animation-delay:${i * .12}s`)).join('')}</div><div class="caption">Four rounds · four decks · forty operations</div>`; },
+    next: 'Take your seat' },
+
+  { key: 'table', label: 'The table', mat: 'felt',
+    brief: () => `<div class="kicker">The premise</div><h1>Four agents, one slot</h1>
+      <div class="txt"><p>Every player has built a time machine. There is funding for one trip. Over four qualifying rounds and a final, the table decides whose mission it will be.</p>
+      <p>You are Agent <em>PALIMPSEST</em>. Your colleagues are FOOTNOTE, ERRATUM, and IBID.</p>
+      <p>Each round has its own deck, one phase of Hitler's life, and the first pick moves one seat every round. At a table of four, everyone goes first once.</p>
+      <p class="note">The agent can never replace a historical person. You can only persuade, bribe, or position yourself.</p></div>`,
+    scene: () => { seats({});
+      return `<div class="ring rise"><div class="envelope"><span class="st">One slot</span><small>Funding · Temporal Insertion</small></div></div>
+        <div class="rot rise">${[1, 2, 3, 4].map(r => `<div><span>Round ${ROMAN[r]} · ${RD[r].years}</span>${chip(r === 1 ? 10 : r === 2 ? 16 : r === 3 ? 23 : 32)}<span>First pick <b>${who(order(r)[0])}</b></span></div>`).join('')}</div>`; } },
+
+  { key: 'r1spread', label: 'Round I · the spread', mat: 1, round: 1,
+    brief: () => `<div class="kicker">Round I · Childhood · 1848–1913</div><h1>Ten operations, face up</h1>
+      <div class="txt"><p>Each round lays one phase of the deck on the table, name side up. Everyone can see every operation. Nobody can read one.</p>
+      <p>The mission and the complication are on the back, and you only get to turn a card over once you've picked it up. That's the agent's position: you commit to a plan before you know what it will cost.</p>
+      <p>Each deck is printed in the look of its own years. Round I is the Vienna Secession. The mat maps where this round's missions happen.</p>
+      <p class="note" id="peek">Try picking one up.</p></div>`,
+    scene: () => { seats({ r: 1, draft: true }); return `${cart(1)}${spreadHTML(1)}`; },
+    after: () => { document.querySelectorAll('#spread .nface').forEach((el, i) => { el.classList.add('deal'); el.style.animationDelay = (reduce ? 0 : .5 + i * .06) + 's'; }); },
+    next: 'Start the draft' },
+
+  { key: 'r1draft', label: 'Round I · the draft', mat: 1, round: 1, draft: true,
+    brief: () => `<div class="kicker">Round I · The draft</div><h1>Pick two by name, keep one</h1>
+      <div class="txt"><p>The draft snakes around the table and back: FOOTNOTE, ERRATUM, IBID, you, then you, IBID, ERRATUM, FOOTNOTE. Last out is first back, so you pick twice in a row.</p>
+      <p>Holding two, you read both, keep one, and put the other back on the table face up. The agents after you can take it.</p>
+      <p>Nothing here is secret. The table sees what you picked up and what you put back.</p>
+      <div id="dstat"></div><div id="dctl"></div><ol class="dlog" id="dlog"></ol>
+      <p class="note">With seven agents, ten cards are still enough: every second pick puts one back.</p></div>`,
+    scene: () => `${cart(1, true)}${spreadHTML(1)}`,
+    after: () => { refreshDraft(1); runDraft(1); },
+    canNext: () => RS[1].done, nextHint: 'Finish the draft' },
+
+  { key: 'pitch', label: 'Round I · the pitch', mat: 1, round: 1,
+    brief: () => { const a = order(1)[0]; return `<div class="kicker">Round I · First pitch</div><h1>Two minutes. No notes.</h1>
+      <div class="txt"><p>Pitches go in draft order, so ${who(a)} opens. The card gets turned over in public for the first time.</p>
+      <p>A pitch has two jobs: show <em>why the mission works</em>, and tell the story of <em>the timeline it leaves behind</em>.</p>
+      <p>The <em>Mission</em> is the briefing: who you are, when you arrive, what you do. The <em>Complication</em> is the argument you have to survive.</p>
+      <p class="note">The clock is advisory. It chimes at zero; the table decides when to cut someone off.</p></div>`; },
+    scene: () => { const a = order(1)[0]; seats({ r: 1, glow: a });
+      return `<div class="pitchwrap">${flipCard(byId(RS[1].kept[a]), 'flipA')}<div class="side"><div class="caption">${who(a)} argues</div>${timerHTML(120)}</div></div>`; },
+    after: () => { turnOver('flipA'); bindTimer(120); } },
+
+  { key: 'cross', label: 'Round I · cross-examination', mat: 1, round: 1,
+    brief: () => `<div class="kicker">Round I · Cross-examination</div><h1>One hostile question</h1>
+      <div class="txt"><p>After each pitch, any other agent may ask the presenter one question. The presenter has to answer. One minute.</p>
+      <p>The question usually comes straight off the card. Every complication is the strongest objection to its own mission, printed where the whole table can read it.</p>
+      <p>${S.interrogator ? `<em>${who(S.interrogator)} ${S.interrogator === 'you' ? 'have' : 'has'} the question.</em>` : 'If nobody volunteers, the host can pick an interrogator at random.'}</p></div>`,
+    scene: () => { const a = order(1)[0]; seats({ r: 1, glow: a, asks: S.interrogator });
+      return `<div class="pitchwrap">${tcard(byId(RS[1].kept[a]), 'hl-comp')}<div class="side"><div class="caption">The complication is the question</div><button class="btn red" type="button" id="pickQ">Pick an interrogator</button>${timerHTML(60)}</div></div>`; },
+    after: () => {
+      bindTimer(60);
+      $('pickQ').addEventListener('click', () => {
+        const a = order(1)[0], pool = ORDER.filter(x => x !== a); let i = 0; const n = reduce ? 1 : 14;
+        const spin = () => { S.interrogator = pool[i % pool.length]; seats({ r: 1, glow: a, asks: S.interrogator }); i++;
+          if (i < n) setTimeout(spin, 60 + i * 12); else { S.interrogator = rand(pool); seats({ r: 1, glow: a, asks: S.interrogator }); $('brief').innerHTML = STEPS[S.step].brief(); } };
+        spin();
+      });
+    } },
+
+  { key: 'all', label: 'Round I · everyone argues', mat: 1, round: 1,
+    brief: () => { const o = order(1); return `<div class="kicker">Round I · The rest of the table</div><h1>Everyone argues</h1>
+      <div class="txt"><p>${o.slice(1).map((a, i) => i ? whoL(a) : who(a)).join(', then ')}. Each pitch turns its card over and gets its one question.</p>
+      <p>Four missions now lie text side up in front of their agents. At a table of four, a round takes about fifteen minutes.</p>
+      <p class="note">Click any card to read it.</p></div>`; },
+    scene: () => { seats({ r: 1 }); const o = order(1);
+      return `${cart(1, true)}<div class="row">${o.map((a, i) => `<div class="pitched rise" style="animation-delay:${i * .15}s">${face(byId(RS[1].kept[a]), 'sm', `tabindex="0" role="button" data-open="${RS[1].kept[a]}"`)}<div class="who">${i + 1} · ${who(a)}</div></div>`).join('')}</div>`; } },
+
+  { key: 'ballot', label: 'Round I · the ballot', mat: 1, round: 1,
+    brief: () => { const R = RS[1]; return `<div class="kicker">Round I · Secret ballot</div><h1>Rank what you didn't argue</h1>
+      <div class="txt"><p>Every agent ranks the other pitches on a secret ballot: 3 points for first, 2 for second, 1 for third. No self-voting.</p>
+      ${CRITERIA}
+      <p>Judge each mission on both criteria. A plan that is strong on only one should not win.</p>
+      <p><em>${R.ballots.you ? 'Ballot cast.' : R.ballot.length < 3 ? 'Click the three cards in order, first choice first.' : 'Cast your ballot.'}</em></p></div>`; },
+    scene: () => { seats({ r: 1 }); return ballotScene(1); },
+    after: () => bindBallot(1),
+    canNext: () => !!RS[1].ballots.you, nextHint: 'Cast your ballot first' },
+
+  { key: 'count', label: 'Round I · the count', mat: 1, round: 1,
+    brief: () => `<div class="kicker">Round I · Results</div><h1>The count</h1>
+      <div class="txt"><p>The other three ballots are sealed. In the room they are real. Here they are filled at random so you can watch the arithmetic, and they are marked as samples.</p>
+      <p>${winnersText(1)}</p>
+      <p class="note">Every score also counts toward the wildcard, which goes to the best agent who never wins a round.</p>
+      <p class="inline-actions"><button class="btn ghost" type="button" id="recount">Re-run the sample ballots</button></p></div>`,
+    scene: () => { seats({ r: 1, pts: RS[1].totals }); return countScene(1); },
+    after: () => { growBars(); $('recount').addEventListener('click', () => { const keepYou = RS[1].ballots.you; countRound(1); RS[1].ballots.you = keepYou; render(); }); } },
+];
+function roundSteps(r) {
+  const R = () => RS[r], first = () => who(order(r)[0]);
+  const intro = {
+    2: () => `<p>First pick moves to ${first()}. Round II's deck comes as field telegrams, passed by the censor: Vienna, Munich, the war.</p>`,
+    3: () => `<p>${first()} picks first. Round III is printed like the Bauhaus, which opened in 1919 and closed under Nazi pressure in 1933: the same years as this deck.</p><p>Most of these cards aim past him, at a banker, a judge, an industrialist, a press baron, a president.</p>`,
+    4: () => `<p>You pick first. Round IV comes as an Allied intelligence file. The look is borrowed from the regime's opponents, never from the regime.</p><p>Nine cards are on the table. The tenth, GÖTTERDÄMMERUNG, is held back. When the draft ends it is offered to one agent at random, who may swap it for the card they kept.</p>`,
+  }[r];
+  return [
+    { key: 'r' + r + 'draft', label: `Round ${ROMAN[r]} · the draft`, mat: r, round: r, draft: true, gap: true,
+      brief: () => `<div class="kicker">Round ${ROMAN[r]} · ${RD[r].title} · ${RD[r].years}</div><h1>${esc(r === 4 ? 'One card is held back' : RD[r].place)}</h1>
+        <div class="txt">${intro()}
+        ${r === 2 ? '<p>Same draft: two by name, keep one, put one back. From here the walkthrough skips the pitches and goes straight to the ballot. In the room, this is where the next fifteen minutes of arguing happen.</p>' : ''}
+        <div id="dstat"></div><div id="dctl"></div><ol class="dlog" id="dlog"></ol></div>`,
+      scene: () => `${cart(r)}${spreadHTML(r)}`,
+      after: () => {
+        const fresh = !R().log.length;
+        refreshDraft(r);
+        if (fresh) document.querySelectorAll('#spread .nface').forEach((el, i) => { el.classList.add('deal'); el.style.animationDelay = (reduce ? 0 : .5 + i * .06) + 's'; });
+        const gen = S.gen;
+        if (!R().done) setTimeout(() => { if (S.gen === gen) runDraft(r); }, fresh ? pace(1300) : 0);
+      },
+      canNext: () => RS[r].done, nextHint: 'Finish the draft' },
+    { key: 'r' + r + 'vote', label: `Round ${ROMAN[r]} · ballot and count`, mat: r, round: r,
+      brief: () => { const done = !!R().ballots.you; return `<div class="kicker">Round ${ROMAN[r]} · ${done ? 'Results' : 'Secret ballot'}</div><h1>${done ? 'The count' : 'Rank the other three'}</h1>
+        <div class="txt">${done ? `<p>${winnersText(r)}</p>${r === 4 && R().offer ? `<p class="note">${R().offer.status === 'taken' ? `${who(R().offer.to)} took GÖTTERDÄMMERUNG and argued it this round.` : `${who(R().offer.to)} turned GÖTTERDÄMMERUNG down. It never reached the table.`}</p>` : ''}<p class="note">The other ballots are random samples${R().sampleYou ? ', and so is yours' : ''}.</p>`
+          : `<p>Pitches and questions happen here, as in Round I. Then rank the three missions you didn't argue: 3, 2, 1.</p>${CRITERIA}<p class="note">Click a card to rank it. "Read" turns it over.</p>`}</div>`; },
+      scene: () => { const done = !!R().ballots.you; seats({ r, pts: done ? R().totals : null }); return `${cart(r, true)}${done ? countScene(r) : ballotScene(r)}`; },
+      after: () => { if (R().ballots.you) growBars(); else bindBallot(r); },
+      canNext: () => !!RS[r].ballots.you, nextHint: 'Cast your ballot first' },
+  ];
+}
+STEPS.push(...roundSteps(2), ...roundSteps(3), ...roundSteps(4));
+STEPS.push(
+  { key: 'field', label: 'The field', mat: 'dir', gap: true,
+    enter: () => field(),
+    brief: () => { field(); const multiNote = F.log.length ? F.log.map(l => l.act === 'pass' ? `${who(l.a)} ${verb(l.a, 'passes', 'pass')} OPERATION ${esc(op(l.id))} to ${whoL(l.to)}.` : `${who(l.a)} ${verb(l.a, 'discards', 'discard')} OPERATION ${esc(op(l.id))}: there's nobody outside the final to take it.`).join(' ') : '';
+      return `<div class="kicker">After Round IV</div><h1>The field</h1>
+      <div class="txt"><p>Each round winner advances with the card they won with. Then the wildcard: the best total across all four rounds among agents who haven't qualified, with the card from their best round.</p>
+      <p><em>The pass-off.</em> Win two rounds and you hold two qualifying cards, but you can argue only one. Discard the other, or pass it to an agent who isn't in the final. If a passed card wins, you score half the winner's points and are credited as co-architect.</p>
+      ${F.stage === 'you' ? '<p><em>You hold more than one qualifying card. Decide on the table.</em></p>' : (multiNote ? `<p>${multiNote}</p>` : '<p>Nobody holds two cards this time, so there is no pass-off.</p>')}
+      ${F.wild && F.wild.tied ? `<p class="note">The wildcard was tied between ${F.wild.tied.map(whoL).join(' and ')}; a coin flip decided it.</p>` : ''}</div>`; },
+    scene: () => { field(); seats({ pts: Object.fromEntries(ORDER.map(a => [a, cum(a)])) });
+      const rows = [1, 2, 3, 4].map(r => { const R = RS[r]; return `<div class="rslot" style="--seg:${RD[r].seg}"><div class="ms">${R.winners.map(a => face(byId(R.kept[a]))).join('')}</div><div class="rt"><b>Round ${ROMAN[r]} · ${RD[r].title}</b>${R.winners.map(a => `${who(a)} · ${esc(op(R.kept[a]))} · ${R.totals[a]} pts`).join(' / ')}${R.winners.length > 1 ? ' · tie' : ''}</div></div>`; }).join('');
+      const wild = F.wild ? `<div class="rslot" style="--seg:#9fb0d6"><div class="ms">${face(byId(F.wild.id))}</div><div class="rt"><b>Wildcard</b>${who(F.wild.holder)} · ${esc(op(F.wild.id))} · ${cum(F.wild.holder)} pts across four rounds</div></div>`
+        : `<div class="rslot" style="--seg:#9fb0d6"><div class="ms"></div><div class="rt"><b>Wildcard</b>None: every agent already holds a qualifying card</div></div>`;
+      let box;
+      if (F.stage === 'you') {
+        const es = mine('you'), pick = F.youArgue, plan = F.plan || {}, free = F.recipients.filter(t => !Object.values(plan).includes(t));
+        box = `<div class="finalbox"><h4>Your decision</h4><p style="font-size:.8rem;margin-top:.4rem;color:var(--ink)">${pick == null ? 'Choose the card you will argue.' : F.recipients.length ? `Pass the other${es.length > 2 ? 's' : ''} to ${F.recipients.map(whoL).join(' or ')}, or discard.` : 'Nobody is outside the final to take a card.'}</p></div>`;
+        const ctl = (e) => {
+          if (pick == null) return `<button class="btn red sm" type="button" data-argue="${e.id}">Argue this one</button>`;
+          if (e.id === pick) return `<span class="caption">You argue this one</span>`;
+          if (plan[e.id]) return `<span class="caption">${plan[e.id] === 'discard' ? 'Discarded' : 'To ' + who(plan[e.id])}</span>`;
+          return free.map(t => `<button class="btn ghost sm" type="button" data-pass="${e.id}" data-to="${t}">Pass to ${who(t)}</button>`).join('') + `<button class="btn ghost sm" type="button" data-pass="${e.id}" data-to="discard">Discard</button>`;
+        };
+        box = box.replace('</div>', '') + `<div class="choice">${es.map(e => `<div class="opt">${face(byId(e.id))}<div class="caption">Round ${ROMAN[e.r]}${e.wild ? ' · wildcard' : ''}</div>${ctl(e)}</div>`).join('')}</div></div>`;
+        return `<div class="bracket decide rise"><div class="rounds">${rows}${wild}</div><div class="arrow">→</div>${box}</div>`;
+      }
+      box = `<div class="finalbox"><h4>The final · ${F.entries.length} missions</h4><ul>${F.entries.map(e => `<li><b>${who(e.arguer)}</b> argues ${entryName(e)}${e.passed ? ` <i>passed by ${whoL(e.holder)}</i>` : ''}${e.wild ? ' <i>wildcard</i>' : ''}</li>`).join('')}</ul></div>`;
+      const pass = F.log.find(l => l.act === 'pass');
+      return `<div class="bracket rise"><div class="rounds">${rows}${wild}</div><div class="arrow">→</div>${box}</div>
+        ${pass ? `<div class="passrow"><span>${who(pass.a)}</span><div class="lane">${chip(pass.id)}</div><span>${who(pass.to)}</span></div>` : ''}`; },
+    after: () => {
+      const finish = () => { const rest = mine('you').filter(e => e.id !== F.youArgue); if (rest.every(e => F.plan[e.id])) { youSettle(F.youArgue, F.plan); render(); } else render(); };
+      document.querySelectorAll('[data-argue]').forEach(b => b.addEventListener('click', () => {
+        F.youArgue = +b.dataset.argue; F.plan = {};
+        if (!F.recipients.length) mine('you').forEach(e => { if (e.id !== F.youArgue) F.plan[e.id] = 'discard'; });
+        finish();
+      }));
+      document.querySelectorAll('[data-pass]').forEach(b => b.addEventListener('click', () => { F.plan[+b.dataset.pass] = b.dataset.to; finish(); }));
+    },
+    canNext: () => { field(); return F.stage === 'done'; }, nextHint: 'Decide your cards first', next: 'To the final' },
+
+  { key: 'final', label: 'The final', mat: 'dir',
+    enter: () => field(),
+    brief: () => { field(); const done = !!F.ballots.you, ev = eligible('you'), k = Math.min(3, ev.length);
+      if (!done) return `<div class="kicker">The final</div><h1>One slot</h1>
+        <div class="txt"><p>Every finalist argues again: same clock, same one question. Then everyone votes, finalists included, never for a card they argue or passed on.</p>
+        ${CRITERIA}
+        <p><em>${k ? (F.ballot.length < k ? `Rank ${k === 3 ? 'three' : k === 2 ? 'two' : 'one'}, first choice first.` : 'Cast your ballot.') : 'Every card in the final is yours or passed on by you. You sit this ballot out.'}</em></p></div>`;
+      const w = F.entries[F.winner];
+      return `<div class="kicker">The final · Results</div><h1>Funded: ${esc(op(w.id))}</h1>
+        <div class="txt"><p>${w.arguer === 'you' ? 'You' : who(w.arguer)} argued it${w.passed ? `, but the card came from ${whoL(w.holder)}. ${who(w.holder)} ${w.holder === 'you' ? 'score' : 'scores'} half of the final points, ${F.totals[F.winner] / 2}, and ${w.holder === 'you' ? 'are' : 'is'} credited as co-architect` : ''}.</p>
+        ${F.flipped ? `<p>It was a tie, settled by a visible coin flip among ${F.flipped.map(i => esc(op(F.entries[i].id))).join(' and ')}.</p>` : ''}
+        <p class="note">The other ballots are random samples${F.sampleYou ? ', and so is yours' : ''}. In the room, this is the last vote of the night.</p></div>`; },
+    scene: () => { field(); const done = !!F.ballots.you;
+      if (!done) {
+        seats({});
+        const ev = eligible('you'), k = Math.min(3, ev.length);
+        const cards = F.entries.map((e, i) => { const can = ev.includes(e), j = F.ballot.indexOf(i);
+          return `<div class="pitched" ${can ? `data-fvote="${i}"` : ''}>${j >= 0 ? `<div class="rankbadge">${SHORT[j]}<small>${3 - j} pts</small></div>` : ''}${face(byId(e.id), 'sm' + (can ? '' : ' dim') + (j >= 0 ? ' sel' : ''), can ? 'tabindex="0" role="button"' : '')}<div class="who">${who(e.arguer)}${e.passed ? `<small>passed by ${whoL(e.holder)}</small>` : e.wild ? '<small>wildcard</small>' : `<small>Round ${ROMAN[e.r]}</small>`}</div><button class="readbtn" type="button" data-read="${e.id}">Read</button></div>`; }).join('');
+        const lines = [0, 1, 2].slice(0, Math.max(k, 1)).map(j => { const i = F.ballot[j]; return `<li><span class="r">${PLACE[j]}</span><span>${i != null ? who(F.entries[i].arguer) + ' · ' + esc(op(F.entries[i].id)) : '<span class="blank">—</span>'}</span><span class="p">${3 - j} pts</span></li>`; }).join('');
+        return `<div class="row">${cards}</div><div class="ballot-form"><h3><span>Final ballot</span><span>Agent PALIMPSEST</span></h3><ol>${lines}</ol>
+          <div class="inline-actions" style="margin-top:.7rem"><button class="btn" type="button" id="fcast" ${F.ballot.length === k ? '' : 'disabled'}>${k ? 'Cast ballot' : 'Continue'}</button><button class="btn ghost" type="button" id="fclear" ${F.ballot.length ? '' : 'disabled'}>Clear</button>${k ? '<button class="btn ghost" type="button" id="fsample">Sample ballot for me</button>' : ''}</div></div>`;
+      }
+      const pts = {}; ORDER.forEach(a => { pts[a] = 0; }); F.entries.forEach((e, i) => { pts[e.arguer] += F.totals[i]; });
+      const wE = F.entries[F.winner]; if (wE.passed) pts[wE.holder] += F.totals[F.winner] / 2;
+      seats({ pts });
+      const max = 3 * ORDER.length;
+      const lines = F.entries.map((e, i) => ({ e, i })).sort((x, y) => F.totals[y.i] - F.totals[x.i]).map(({ e, i }) => `<div class="line ${i === F.winner ? 'win' : ''}"><div class="name">${who(e.arguer)}${i === F.winner ? '<span class="adv">Funded</span>' : ''}<small>${esc(op(e.id))}${e.passed ? ' · co-architect ' + whoL(e.holder) : ''}</small></div><div class="bar"><i data-w="${(F.totals[i] / max * 100).toFixed(1)}"></i></div><div class="tot">${F.totals[i]}</div></div>`).join('');
+      const slips = ORDER.map(v => `<div class="slip ${v === 'you' && !F.sampleYou ? '' : 'rand'}"><b>${v === 'you' ? 'Your ballot' : AG[v].name}</b>${F.ballots[v].length ? F.ballots[v].map((i, j) => `${SHORT[j]} ${esc(op(F.entries[i].id))}`).join(' · ') : 'No eligible cards'}</div>`).join('');
+      return `<div class="funded rise">${face(byId(wE.id), 'sm')}<div class="stamp">Funded</div></div>${F.flipped ? '<div class="coin spin" id="coin">Flip</div>' : ''}<div class="panel"><div class="tally">${lines}</div><div class="ballots" style="margin-top:.8rem">${slips}</div></div>`; },
+    after: () => {
+      if (F.ballots.you) { growBars(); if ($('coin')) setTimeout(() => { const c = $('coin'); if (c) { c.classList.remove('spin'); c.textContent = 'Done'; } }, reduce ? 0 : 1400); return; }
+      const k = Math.min(3, eligible('you').length);
+      document.querySelectorAll('[data-fvote]').forEach(el => { const i = +el.dataset.fvote, card = el.querySelector('.nface');
+        const act = (e) => { e.preventDefault(); const j = F.ballot.indexOf(i); if (j >= 0) F.ballot.splice(j, 1); else if (F.ballot.length < k) F.ballot.push(i); render(); };
+        card.addEventListener('click', act); card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') act(e); }); });
+      $('fcast').addEventListener('click', () => { castFinal(); render(); });
+      $('fclear').addEventListener('click', () => { F.ballot = []; render(); });
+      if ($('fsample')) $('fsample').addEventListener('click', () => { castFinal(true); render(); });
+    },
+    canNext: () => !!(F && F.ballots.you), nextHint: 'Cast your ballot first' },
+
+  { key: 'last', label: 'The last card', mat: 'dir',
+    brief: () => { const o = RS[4].offer; const story = !o ? '' : o.status === 'taken' ? `In this game it went to ${whoL(o.to)}, who took it and argued it in Round IV.` : `In this game it was offered to ${whoL(o.to)}, who turned it down. Nobody argued it.`;
+      return `<div class="kicker">Phase IV · Card 40 of 40</div><h1>The card that argues back</h1>
+      <div class="txt"><p>Operation GÖTTERDÄMMERUNG sends its agent to the bunker on April 30, 1945, to make sure nothing changes, and then makes them argue that the machine should never have been built.</p>
+      <p>It never lies on the table. It's held back and offered to one agent at random after the Round IV draft. ${story}</p>
+      <p>Whoever takes it has to put the whole game on trial.</p>
+      <p class="memo">The machine is one way. Once you argue it, it's argued. Leave it on the table when you walk out.</p>
+      <div class="inline-actions"><button class="btn red" type="button" id="toDebrief">Return to the debrief</button><button class="btn ghost" type="button" id="restart">Play again</button></div></div>`; },
+    scene: () => { seats({}); return flipCard(byId(40), 'flipZ'); },
+    after: () => { turnOver('flipZ', 400); },
+    next: 'Debrief', nextAct: () => returnToEssay() }
+);
+
+// ── rendering ───────────────────────────────────────────────────────────────
+function bindBriefButtons() {
+  if ($('toDebrief')) $('toDebrief').addEventListener('click', returnToEssay);
+  if ($('restart')) $('restart').addEventListener('click', () => { newGame(); go(2); });
+}
+function updateNav() {
+  const st = STEPS[S.step], ok = !st.canNext || st.canNext();
+  $('next').disabled = !ok; $('next').textContent = ok ? (st.next || 'Next') : st.nextHint;
+  $('stepper').querySelectorAll('button').forEach((b, i) => { b.className = (STEPS[i].gap ? 'gap ' : '') + (i < S.step ? 'done' : i === S.step ? 'cur' : ''); b.disabled = i > S.step && !reachable(i); b.setAttribute('aria-current', i === S.step ? 'step' : 'false'); });
+}
+function render() {
+  const st = STEPS[S.step];
+  stopTimer();
+  $('brief').innerHTML = st.brief();
+  $('scene').innerHTML = st.scene();
+  paintMat();
+  bindBriefButtons();
+  if (st.after) st.after();
+  $('count').textContent = (S.step + 1) + ' / ' + STEPS.length;
+  $('prev').disabled = S.step === 0;
+  updateNav();
+}
+function reachable(i) { for (let k = 0; k < i; k++) { const st = STEPS[k]; if (st.canNext && !st.canNext()) return false; } return true; }
+function go(i) {
+  i = Math.max(0, Math.min(STEPS.length - 1, i));
+  if (i > S.step && !reachable(i)) return;
+  S.gen++; S.running = null; $('ghosts').innerHTML = '';
+  if (!modal.hidden) closeModal();
+  [1, 2, 3, 4].forEach(r => { RS[r].thinking = null; });
+  S.step = i; const st = STEPS[i]; if (st.enter) st.enter(); render();
+  $('center').scrollTop = 0; $('brief').scrollTop = 0;
+}
+$('stepper').innerHTML = STEPS.map((s, i) => `<button type="button" style="--seg:${s.round ? RD[s.round].seg : s.mat === 'dir' ? '#9fb0d6' : '#e9d9b0'}" data-label="${esc(s.label)}" aria-label="Step ${i + 1}: ${esc(s.label)}"></button>`).join('');
+$('stepper').querySelectorAll('button').forEach((b, i) => b.addEventListener('click', () => go(i)));
+$('prev').addEventListener('click', () => go(S.step - 1));
+$('next').addEventListener('click', () => { const st = STEPS[S.step]; if (st.nextAct) return st.nextAct(); go(S.step + 1); });
+
+// clicks on the table: pick up a card, read a card, or (before the draft) get told to wait
+$('scene').addEventListener('click', (e) => {
+  const st = STEPS[S.step];
+  const rd = e.target.closest('[data-read]'); if (rd) { viewCard(+rd.dataset.read); return; }
+  const op_ = e.target.closest('[data-open]'); if (op_) { viewCard(+op_.dataset.open); return; }
+  const f = e.target.closest('#spread .nface'); if (!f) return;
+  if (st.key === 'r1spread') { f.classList.remove('deal', 'shake'); void f.offsetWidth; f.classList.add('shake'); const p = $('peek'); if (p) p.innerHTML = '<em>Not yet.</em> Nobody picks up a card until the draft begins. Then you choose by name alone.'; return; }
+  if (st.draft && !f.classList.contains('held')) youPick(st.round, +f.dataset.card);
+});
+$('scene').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target; if (!(t.matches && (t.matches('#spread .nface[tabindex]') || t.matches('[data-open]')))) return;
+  e.preventDefault(); t.click();
+});
+$('me').addEventListener('click', (e) => { const c = e.target.closest('button[data-cid]'); if (c) viewCard(+c.dataset.cid); });
+
+// ── deck browser / card viewer ──────────────────────────────────────────────
+const modal = $('modal');
+let lastFocus = null;
+function openModal(title, chips, body) { if (modal.hidden) lastFocus = document.activeElement; $('modalTitle').textContent = title; $('modalChips').innerHTML = chips || ''; $('modalBody').innerHTML = body; modal.hidden = false; $('modalBody').scrollTop = 0; $('modalClose').focus(); }
+function closeModal() { if (modal.hidden) return; modal.hidden = true; if (lastFocus) try { lastFocus.focus(); } catch (e) {} }
+function openDeck(phase) {
+  const chips = ['All', 'I', 'II', 'III', 'IV'].map((l, i) => `<button class="chip ${(phase || 0) === i ? 'on' : ''}" type="button" data-ph="${i}">${i ? 'Round ' + l : 'All 40'}</button>`).join(' ');
+  const phases = phase ? [phase] : [1, 2, 3, 4];
+  const body = `<div class="grid">${phases.map(p => `<div class="phase-h">${esc(PHASES[p].label)}<span>${RD[p].look}</span></div>` + CARDS.filter(c => c.phase === p).map(c => face(c, '', `tabindex="0" role="button" aria-label="Read OPERATION ${esc(c.op)}"`)).join('')).join('')}</div>`;
+  openModal('The deck · name side', chips, body);
+  $('modalChips').querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => openDeck(+b.dataset.ph)));
+  $('modalBody').querySelectorAll('.nface').forEach(el => { const o = () => viewCard(+el.dataset.card, phase); el.addEventListener('click', o); el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); o(); } }); });
+}
+function viewCard(id, fromPhase) {
+  const nav = `<button class="chip" type="button" id="vTurn">Turn over</button> <button class="chip" type="button" id="vPrev">← Prev</button> <button class="chip" type="button" id="vNext">Next →</button> <button class="chip" type="button" id="vDeck">All cards</button>`;
+  openModal('Card ' + pad(id) + ' of 40', nav, `<div class="viewer"><div class="opt">${flipCard(byId(id), 'vflip')}</div></div>`);
+  turnOver('vflip', 200);
+  $('vTurn').addEventListener('click', () => $('vflip').classList.toggle('down'));
+  $('vPrev').addEventListener('click', () => viewCard(id === 1 ? 40 : id - 1, fromPhase));
+  $('vNext').addEventListener('click', () => viewCard(id === 40 ? 1 : id + 1, fromPhase));
+  $('vDeck').addEventListener('click', () => openDeck(fromPhase || 0));
+}
+$('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => { if (e.target === modal || e.target === $('modalBody') || e.target.classList.contains('viewer')) closeModal(); });
+$('deckBtn').addEventListener('click', () => openDeck(0));
+
+function returnToEssay() {
+  if (embedded) { try { window.parent.postMessage({ dkh: 'return' }, '*'); return; } catch (e) {} }
+  window.location.href = '../index.html#debrief';
+}
+$('essayBtn').addEventListener('click', returnToEssay);
+
+document.addEventListener('keydown', (e) => {
+  if (!modal.hidden) {
+    if (e.key === 'Escape') closeModal();
+    if ($('vPrev') && e.key === 'ArrowLeft') $('vPrev').click();
+    if ($('vNext') && e.key === 'ArrowRight') $('vNext').click();
+    return;
+  }
+  const tag = (e.target && e.target.tagName) || '';
+  if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') { if (!$('next').disabled) $('next').click(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'b' || e.key === 'B') go(S.step - 1);
+  else if (e.key === ' ' && S.timer && tag !== 'BUTTON') { e.preventDefault(); S.timer.toggle(); }
+  else if (e.key === 'd' || e.key === 'D') openDeck(0);
+});
+
+render();
+window.__dkhCards = { go, autoRound, castFinal, field, get state() { return { S, RS, F, STEPS }; }, set instant(v) { S.instant = !!v; } };
+})();
+</script>
+</body>
+</html>

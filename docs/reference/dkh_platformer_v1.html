@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Don't Kill Hitler</title>
+<!--
+  Platformer v1 — reconstructed from the March 2026 build chat (original file + every patch applied in order:
+  slower bullets, 5 guards, brighter platforms, Mario stomp, 3 HP + iframes, killP declaration fix).
+  This is the version that was shown in class on Mar 9, 2026. Treat as reference/starting point, not gospel.
+-->
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Courier New', monospace; user-select: none; }
+#wrap { position: relative; width: 640px; height: 360px; cursor: pointer; }
+canvas { display: block; image-rendering: pixelated; }
+#scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px); }
+#hint { color: #2a4a22; font-size: 10px; letter-spacing: 2px; margin-top: 8px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="640" height="360"></canvas>
+  <div id="scanlines"></div>
+</div>
+<div id="hint">Arrow keys / WASD to move &nbsp;·&nbsp; Space / W / ↑ to jump &nbsp;·&nbsp; Jump on enemies to stomp them &nbsp;·&nbsp; Click to interact</div>
+
+<script>
+// ─── CANVAS SETUP ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 640, H = 360;
+
+// ─── PALETTE ──────────────────────────────────────────────────────────────────
+const C = {
+  bg:'#060304',  wall:'#110b06',  wallLine:'#180f08',
+  floorBody:'#1c1208',  floorTop:'#2c1e0c',  floorTile:'#221608',
+  banner:'#7a0000',  bannerBright:'#aa0000',
+  player:'#2ecc55',  playerDk:'#187733',  playerVisor:'#44ffaa',
+  guard:'#7a8899',  guardDk:'#3a4855',  guardHat:'#1a2838',  skin:'#cc9966',
+  dog:'#7b4a10',  dogDk:'#4a2c08',
+  bullet:'#ffee33',
+  target:'#ccaa22',
+  text:'#b8dca0',  textDim:'#3a5a2a',  textBright:'#ddffc8',  ui:'#77bb55',
+  red:'#ff2222',  white:'#ffffff',
+  p1:'#ffcc00',  p2:'#ff6600',
+};
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const FLOOR    = 296;
+const GRAV     = 0.52;
+const PSPEED   = 2.8;
+const JFORCE   = -11;
+const TIME_LIM = 35;
+const LVL_W    = 4800;
+const TARGET_X = LVL_W - 130;
+
+// ─── PLATFORMS [worldX, worldY, width] ───────────────────────────────────────
+const PLATS = [
+  [320,254,88],[640,238,82],[960,252,88],[1280,236,82],
+  [1600,250,88],[1920,236,82],[2240,252,88],[2560,238,82],
+  [2880,250,88],[3200,236,82],[3520,252,88],[3840,238,82],[4160,250,88],
+];
+
+// ─── LEVEL CONTENT ────────────────────────────────────────────────────────────
+const LEVELS = [
+  { target:'hitler',
+    lines:['1933.  BERLIN.','',"Hitler has just assumed power.",'The Reich Chancellery is ahead.','','You have one shot.','One time machine.','','The machine is one way.','','> DEPLOY.']},
+  { target:'himmler',
+    lines:['MISSION ACCOMPLISHED.','','Heinrich Himmler assumed control.','The SS tightened its grip.','The Reich endured.','','> GO BACK.  KILL HIMMLER.']},
+  { target:'heydrich',
+    lines:['Himmler eliminated.','','Reinhard Heydrich —','the Butcher of Prague —','stepped forward.','','More organized.  More ruthless.','','> GO BACK.  KILL HEYDRICH.']},
+  { target:'goebbels',
+    lines:['Heydrich gone.','','Joseph Goebbels consolidated power.','The propaganda machine','never stopped.','','> GO BACK.  KILL GOEBBELS.']},
+  { target:'self',
+    lines:['The timeline is fracturing.','','Our analyst has traced','the paradox to its source.','.','..','...','','The target is you.','','Your first intervention','created the loop.','','> GO BACK.  END IT.']},
+];
+
+const FINAL = [
+  'You eliminate yourself.',
+  '',
+  'The loop closes.',
+  '',
+  'Hitler never died.',
+  '',
+  'History proceeds as written.',
+  '',
+  '.','..',
+  '',
+  'Some things cannot be fixed',
+  'from the outside.',
+  '',
+  'The machine was always',
+  'the problem.',
+];
+
+const TARGET_NAMES = {
+  hitler:'HITLER', himmler:'HIMMLER',
+  heydrich:'HEYDRICH', goebbels:'GOEBBELS', self:'???'
+};
+
+// ─── SPRITE DRAWING ───────────────────────────────────────────────────────────
+function r(x,y,w,h,col){ ctx.fillStyle=col; ctx.fillRect(x,y,w,h); }
+
+function sprPlayer(x,y,wf,flip,ghost){
+  const c1 = ghost?'#ff5533':C.player;
+  const c2 = ghost?'#bb2211':C.playerDk;
+  ctx.save();
+  if(flip){ ctx.translate(x+16,0); ctx.scale(-1,1); x=0; }
+  r(x+4,y+1,8,7,c1);           // head
+  r(x+5,y+3,6,3,c2);           // visor
+  r(x+5,y+3,3,1,C.playerVisor);// visor shine
+  r(x+3,y+8,10,8,c1);          // torso
+  r(x+3,y+13,10,2,c2);         // belt
+  r(x+13,y+9,4,3,c2);          // arm R
+  r(x,  y+9,3,3,c2);           // arm L
+  if(wf===0){r(x+3,y+16,5,5,c2); r(x+8,y+18,5,3,c1);}
+  else      {r(x+3,y+18,5,3,c1); r(x+8,y+16,5,5,c2);}
+  ctx.restore();
+}
+
+function sprGuard(x,y,wf,facing){
+  // facing: 1=right, -1=left
+  ctx.save();
+  if(facing===1){ctx.translate(x+16,0);ctx.scale(-1,1);x=0;}
+  r(x+1,y,14,3,C.guardHat);   // cap top
+  r(x+2,y+2,12,4,C.guardHat); // cap body
+  r(x+1,y+4,14,2,C.guardDk);  // cap brim
+  r(x+4,y+5,8,6,C.skin);      // face
+  r(x+5,y+7,2,2,'#1a1010');   // eye L
+  r(x+9,y+7,2,2,'#1a1010');   // eye R
+  r(x+3,y+11,10,8,C.guard);   // uniform
+  r(x+5,y+11,6,2,C.guardDk);  // collar
+  r(x+3,y+16,10,2,'#332200'); // belt
+  r(x-6,y+12,10,3,C.guard);   // gun arm
+  r(x-8,y+13,4,2,'#222');     // gun barrel
+  if(wf===0){r(x+3,y+19,5,4,C.guardDk);r(x+9,y+21,5,2,C.guard);}
+  else      {r(x+3,y+21,5,2,C.guard);  r(x+9,y+19,5,4,C.guardDk);}
+  ctx.restore();
+}
+
+function sprDog(x,y,dir,charge){
+  ctx.save();
+  if(dir===-1){ctx.translate(x+22,0);ctx.scale(-1,1);x=0;}
+  const bc = charge?'#992211':C.dog;
+  r(x+2,y+6,14,7,bc);          // body
+  r(x+12,y+2,8,8,bc);          // head
+  r(x+18,y+5,5,4,C.dogDk);     // snout
+  r(x+21,y+5,2,2,'#111');      // nose
+  r(x+13,y+3,3,3,charge?'#ff0000':'#111'); // eye
+  r(x+12,y,5,4,C.dogDk);       // ear
+  r(x,y+4,4,3,bc);             // tail
+  r(x-2,y+2,3,3,bc);
+  r(x+4,y+13,3,5,C.dogDk);     // legs
+  r(x+10,y+13,3,5,C.dogDk);
+  ctx.restore();
+}
+
+function sprTarget(x,y,type){
+  switch(type){
+    case 'hitler':
+      r(x+3,y+8,10,10,'#2a2a3a');  // uniform
+      r(x+4,y+5,8,5,'#1a1a2a');
+      r(x+4,y+1,8,7,C.skin);       // head
+      r(x+4,y+1,8,3,'#111');       // hair
+      r(x+6,y+6,4,2,'#111');       // mustache
+      r(x+5,y+3,2,2,'#331100');    // eyes
+      r(x+9,y+3,2,2,'#331100');
+      r(x+13,y+9,5,3,'#2a2a3a');   // arm
+      ctx.fillStyle='rgba(255,40,40,0.12)';
+      ctx.fillRect(x-2,y-3,22,24);
+      break;
+    case 'himmler':
+      r(x+3,y+8,10,10,'#1a1a2e');
+      r(x+4,y+5,8,5,'#111');
+      r(x+4,y+1,8,7,C.skin);
+      r(x+4,y+1,8,2,'#222');
+      ctx.strokeStyle='#aaa'; ctx.lineWidth=1;
+      ctx.strokeRect(x+4,y+3,4,4); ctx.strokeRect(x+8,y+3,4,4);
+      r(x+7,y+4,2,1,'#888');
+      r(x+5,y+4,1,2,'#222'); r(x+9,y+4,1,2,'#222');
+      ctx.fillStyle='rgba(40,40,200,0.1)'; ctx.fillRect(x-2,y-3,22,24);
+      break;
+    case 'heydrich':
+      r(x+4,y+6,8,12,'#0e0e0e');
+      r(x+3,y+8,2,8,'#1a1a1a'); r(x+11,y+8,2,8,'#1a1a1a');
+      r(x+4,y+1,8,7,C.skin);
+      r(x+4,y+1,8,3,'#ccbb44');
+      r(x+5,y+3,2,2,'#222'); r(x+9,y+3,2,2,'#222');
+      r(x+6,y+10,4,2,'#bbb');
+      ctx.fillStyle='rgba(0,0,40,0.18)'; ctx.fillRect(x-2,y-3,22,24);
+      break;
+    case 'goebbels':
+      r(x+5,y+7,7,11,'#3a2e08');
+      r(x+5,y+5,7,4,'#1a1a11');
+      r(x+5,y+1,7,6,C.skin);
+      r(x+5,y+1,7,2,'#1a1a11');
+      r(x+6,y+3,2,2,'#441100'); r(x+9,y+3,2,2,'#441100');
+      r(x+12,y+9,6,4,'#cc8800');
+      r(x+13,y+8,4,2,'#ff4400');
+      ctx.fillStyle='rgba(180,90,0,0.1)'; ctx.fillRect(x-2,y-3,22,24);
+      break;
+    case 'self':
+      sprPlayer(x,y,0,false,true);
+      ctx.fillStyle='#fff';
+      ctx.font='bold 14px "Courier New"';
+      ctx.textAlign='center';
+      ctx.fillText('?',x+8,y-3);
+      ctx.textAlign='left';
+      break;
+  }
+}
+
+// ─── INPUT ────────────────────────────────────────────────────────────────────
+const K = {};
+document.addEventListener('keydown', e=>{ K[e.key]=true; });
+document.addEventListener('keyup',   e=>{ K[e.key]=false; });
+function key(...ks){ return ks.some(k=>K[k]); }
+
+// ─── GAME STATE ───────────────────────────────────────────────────────────────
+// States: TITLE, BRIEF, PLAY, DEAD, DONE, FINAL
+let state='TITLE', lvl=0, frame=0;
+let camX=0;
+let timerSecs=TIME_LIM, timerFrac=0;
+let deathWait=0, doneWait=0, flashT=0;
+let briefT=0, briefReady=false;
+let finalT=0, finalDone=false;
+let p={}, enemies=[], bullets=[], parts=[];
+const MAX_HP = 3;
+
+function mkPlayer(){
+  p={x:60, y:FLOOR-22, vx:0, vy:0, ground:false,
+     dead:false, wf:0, wt:0, right:true, hp:MAX_HP, iframes:0};
+}
+
+function mkEnemies(){
+  enemies=[];
+  const gx=[840,1640,2540,3490,4380];
+  const dx2=[590,1040,1490,1990,2390,2890,3390,3890];
+  const hard=1+lvl*0.28;
+
+  gx.forEach((ex,i)=>{
+    // place guard on floor or platform nearby
+    let gy=FLOOR-22;
+    for(const [px,py,pw] of PLATS){
+      if(Math.abs(ex-(px+pw/2))<55){gy=py-22;break;}
+    }
+    enemies.push({
+      type:'g', x:ex, y:gy, bx:ex,
+      dir:-1, patrol:i%3!==0,
+      vx:0.55*hard, range:55,
+      st:140+Math.random()*140, cd:Math.max(120,200-lvl*10),
+      wf:0, wt:0
+    });
+  });
+
+  dx2.forEach(ex=>{
+    enemies.push({
+      type:'d', x:ex, y:FLOOR-15, bx:ex,
+      dir:1, vx:1.1*hard, range:85,
+      crange:135, cspeed:3.2+lvl*0.55,
+      charging:false
+    });
+  });
+}
+
+function resetLvl(){
+  mkPlayer(); mkEnemies();
+  bullets=[]; parts=[];
+  camX=0; timerSecs=TIME_LIM; timerFrac=0;
+  deathWait=0; doneWait=0; flashT=0;
+}
+
+// ─── CLICK / KEY HANDLERS (state machine advance) ────────────────────────────
+document.getElementById('wrap').addEventListener('click',()=>{
+  if(state==='TITLE'){state='BRIEF';briefT=0;briefReady=false;return;}
+  if(state==='BRIEF'){
+    if(!briefReady){briefT=9999;}// skip to end
+    else{state='PLAY';resetLvl();}
+    return;
+  }
+  if(state==='FINAL'&&finalDone){lvl=0;state='TITLE';return;}
+});
+document.addEventListener('keydown',e=>{
+  if(state==='TITLE'){state='BRIEF';briefT=0;briefReady=false;return;}
+  if(state==='BRIEF'&&briefReady&&(e.key===' '||e.key==='Enter')){
+    state='PLAY';resetLvl();return;
+  }
+  if(state==='BRIEF'&&!briefReady){briefT=9999;return;}
+  if(state==='FINAL'&&finalDone&&e.key==='Enter'){lvl=0;state='TITLE';return;}
+});
+
+// ─── UPDATE ───────────────────────────────────────────────────────────────────
+function update(){
+  frame++;
+  if(state==='BRIEF'){
+    briefT++;
+    const total=LEVELS[lvl].lines.length;
+    if(briefT>total*4+80) briefReady=true;
+    return;
+  }
+  if(state==='DEAD'){
+    if(--deathWait<=0){state='PLAY';resetLvl();}
+    parts.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=0.15;q.life--;});
+    parts=parts.filter(q=>q.life>0);
+    return;
+  }
+  if(state==='DONE'){
+    if(--doneWait<=0){
+      lvl++;
+      if(lvl>=LEVELS.length){lvl=0;state='TITLE';}
+      else{state='BRIEF';briefT=0;briefReady=false;}
+    }
+    flashT=Math.max(0,flashT-1);
+    return;
+  }
+  if(state==='FINAL'){
+    finalT++;
+    if(finalT>FINAL.length*6+120) finalDone=true;
+    return;
+  }
+  if(state!=='PLAY') return;
+
+  // Timer
+  timerFrac++;
+  if(timerFrac>=60){timerFrac=0; timerSecs--;}
+  if(timerSecs<=0) killP();
+
+  // Player input & physics
+  if(!p.dead){
+    p.vx=0;
+    if(p.iframes>0) p.iframes--;
+    if(key('ArrowRight','d','D')){p.vx=PSPEED; p.right=true;}
+    if(key('ArrowLeft','a','A')){ p.vx=-PSPEED; p.right=false;}
+    if(key('ArrowUp','w','W',' ')&&p.ground){ p.vy=JFORCE; p.ground=false; }
+    if(p.vx!==0){if(++p.wt>7){p.wf=1-p.wf;p.wt=0;}}
+  }
+  p.vy+=GRAV; p.x+=p.vx; p.y+=p.vy; p.ground=false;
+
+  // Floor
+  if(p.y+22>=FLOOR){p.y=FLOOR-22;p.vy=0;p.ground=true;}
+
+  // Platforms
+  for(const [px,py,pw] of PLATS){
+    if(p.x+14>px&&p.x+2<px+pw&&p.y+22>=py&&p.y+22<=py+14&&p.vy>=0){
+      p.y=py-22;p.vy=0;p.ground=true;
+    }
+  }
+  p.x=Math.max(0,Math.min(LVL_W-16,p.x));
+
+  // Camera
+  camX=Math.max(0,Math.min(LVL_W-W, p.x-W*0.34));
+
+  // Reach target?
+  if(!p.dead&&p.x+14>=TARGET_X&&p.x<=TARGET_X+22){
+    if(lvl===4){ state='FINAL'; finalT=0; finalDone=false; return; }
+    state='DONE'; doneWait=130; flashT=45;
+    spawnParticles(TARGET_X-camX, FLOOR-24);
+    return;
+  }
+
+  // Enemies
+  for(const e of enemies){
+    if(e.type==='g'){
+      if(e.patrol){
+        e.x+=e.vx*e.dir;
+        if(e.x<e.bx-e.range||e.x>e.bx+e.range) e.dir*=-1;
+      }
+      const dx=p.x-e.x;
+      e.dir=dx>0?1:-1;
+      e.st--;
+      if(e.st<=0&&Math.abs(dx)<400){
+        e.st=e.cd+Math.random()*40;
+        bullets.push({x:e.x+(dx>0?14:-6),y:e.y+12,vx:dx>0?1.8:-1.8,life:120});
+      } else if(e.st<=0) e.st=28;
+      e.wt=(e.wt||0)+1; if(e.wt>10){e.wf=1-(e.wf||0);e.wt=0;}
+    }
+    if(e.type==='d'){
+      const dx=p.x-e.x, dy=p.y-e.y;
+      if(Math.abs(dx)<e.crange&&Math.abs(dy)<55){
+        e.charging=true; e.dir=dx>0?1:-1;
+        e.x+=e.dir*e.cspeed;
+      } else {
+        e.charging=false;
+        e.x+=e.vx*e.dir;
+        if(e.x<e.bx-e.range||e.x>e.bx+e.range) e.dir*=-1;
+      }
+    }
+    // Player hit
+    if(!p.dead){
+      const ew=e.type==='g'?16:22, eh=e.type==='g'?22:18;
+      if(p.x+13>e.x+2&&p.x+2<e.x+ew-2&&p.y+20>e.y+2&&p.y+2<e.y+eh){
+        // Stomp from above?
+        if(p.vy>0&&p.y+20<e.y+eh*0.55){
+          e.dead=true; p.vy=JFORCE*0.55;
+          spawnParticles(e.x-camX, e.y);
+        } else {
+          hurtP();
+        }
+      }
+    }
+  }
+  enemies=enemies.filter(e=>!e.dead);
+
+  // Bullets
+  bullets=bullets.filter(b=>{
+    b.x+=b.vx; b.life--;
+    if(b.life<=0) return false;
+    if(!p.dead&&b.x+8>p.x+2&&b.x<p.x+14&&b.y+3>p.y+2&&b.y<p.y+20){
+      hurtP(); return false;
+    }
+    return true;
+  });
+
+  // Particles
+  parts.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=0.14;q.life--;});
+  parts=parts.filter(q=>q.life>0);
+
+  flashT=Math.max(0,flashT-1);
+}
+
+function hurtP(){
+  if(p.dead||p.iframes>0) return;
+  p.hp--;
+  if(p.hp<=0){ killP(); return; }
+  p.iframes=90;          // 1.5 s invincible
+  p.vy=JFORCE*0.4;       // small knockback hop
+  flashT=12;
+}
+
+function killP(){
+  if(p.dead)return;
+  p.dead=true; state='DEAD'; deathWait=85;
+  for(let i=0;i<18;i++) parts.push({
+    x:p.x+8-camX, y:p.y+10,
+    vx:(Math.random()-.5)*5, vy:Math.random()*-5-1,
+    life:32+Math.random()*24,
+    col:['#fff',C.player,'#ffcc00'][i%3], sz:2+Math.random()*2
+  });
+}
+
+function spawnParticles(sx,sy){
+  for(let i=0;i<22;i++) parts.push({
+    x:sx+11, y:sy,
+    vx:(Math.random()-.5)*5.5, vy:Math.random()*-6-1,
+    life:38+Math.random()*28,
+    col:i%2===0?C.p1:C.p2, sz:2+Math.random()*3
+  });
+}
+
+// ─── DRAW ─────────────────────────────────────────────────────────────────────
+function draw(){
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  if(state==='TITLE') dTitle();
+  else if(state==='BRIEF') dBrief();
+  else if(state==='PLAY'||state==='DEAD'||state==='DONE') dGame();
+  else if(state==='FINAL') dFinal();
+}
+
+// ── TITLE ──────────────────────────────────────────────────────────────────
+function dTitle(){
+  ctx.fillStyle='#0a0505';
+  for(let i=0;i<8;i++){
+    const cx=38+i*80;
+    ctx.fillRect(cx,130,20,H-130);
+    ctx.fillRect(cx-5,125,30,14);
+  }
+  for(let i=0;i<5;i++){
+    const bx=58+i*130;
+    ctx.fillStyle='#400000'; ctx.fillRect(bx,145,22,100);
+    ctx.fillStyle='#600000'; ctx.fillRect(bx+2,145,18,98);
+  }
+  const g=ctx.createRadialGradient(W/2,170,10,W/2,170,220);
+  g.addColorStop(0,'rgba(15,40,8,0.5)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  ctx.textAlign='center';
+  ctx.fillStyle=C.textBright;
+  ctx.font='bold 40px "Courier New"';
+  ctx.fillText("DON'T KILL HITLER",W/2,88);
+  ctx.fillStyle=C.textDim;
+  ctx.font='11px "Courier New"';
+  ctx.fillText('TEMPORAL INTELLIGENCE DIRECTORATE — SIMULATION',W/2,110);
+
+  if(Math.floor(frame/28)%2===0){
+    ctx.fillStyle=C.ui;
+    ctx.font='13px "Courier New"';
+    ctx.fillText('[ CLICK OR PRESS ANY KEY TO DEPLOY ]',W/2,198);
+  }
+
+  ctx.fillStyle='#2a4420';
+  ctx.font='12px "Courier New"';
+  ctx.fillText('The machine is one way.',W/2,308);
+  ctx.fillText('Plan accordingly.',W/2,326);
+  ctx.textAlign='right';
+  ctx.fillStyle=C.textDim;
+  ctx.font='10px "Courier New"';
+  ctx.fillText('TID-1933',W-14,H-10);
+  ctx.textAlign='left';
+}
+
+// ── BRIEFING ──────────────────────────────────────────────────────────────
+function dBrief(){
+  ctx.fillStyle='#010301'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#081408'; ctx.fillRect(0,0,W,38);
+  ctx.fillStyle='#143010'; ctx.fillRect(0,36,W,2);
+  ctx.fillStyle=C.textDim; ctx.font='10px "Courier New"';
+  ctx.fillText('TEMPORAL INTELLIGENCE DIRECTORATE — MISSION BRIEFING',18,22);
+  const ops=['OP-001','OP-002','OP-003','OP-004','OP-PARADOX'];
+  ctx.textAlign='right';
+  ctx.fillText(ops[lvl],W-18,22);
+  ctx.textAlign='left';
+
+  const lines=LEVELS[lvl].lines;
+  const show=Math.min(lines.length, Math.floor(briefT/4));
+  let ty=70;
+  for(let i=0;i<show;i++){
+    const ln=lines[i];
+    if(ln===''){ty+=10;continue;}
+    if(ln.startsWith('>')){ctx.fillStyle=C.ui;ctx.font='bold 14px "Courier New"';}
+    else if(ln==='.'||ln==='..'||ln==='...'){ctx.fillStyle=C.textDim;ctx.font='14px "Courier New"';}
+    else{ctx.fillStyle=C.text;ctx.font='14px "Courier New"';}
+    ctx.fillText(ln,38,ty); ty+=22;
+    ctx.font='14px "Courier New"';
+  }
+  if(show<lines.length&&Math.floor(frame/18)%2===0){
+    ctx.fillStyle=C.ui; ctx.fillRect(38,ty-4,9,14);
+  }
+  if(briefReady&&Math.floor(frame/22)%2===0){
+    ctx.fillStyle=C.ui; ctx.font='11px "Courier New"';
+    ctx.fillText('[ SPACE / ENTER / CLICK TO DEPLOY ]',38,H-26);
+  }
+}
+
+// ── MAIN GAME ─────────────────────────────────────────────────────────────
+function dGame(){
+  dBg(); dFloor(); dPlats();
+  dEnemies(); dBullets(); dTargetObj();
+
+  if(!p.dead){
+    const blink = p.iframes>0 && Math.floor(frame/6)%2===0;
+    if(!blink) sprPlayer(p.x-camX, p.y, p.wf, !p.right, false);
+  }
+
+  // Particles (stored in screen space)
+  parts.forEach(q=>{
+    ctx.globalAlpha=Math.max(0,q.life/50);
+    ctx.fillStyle=q.col||'#fff';
+    ctx.fillRect(q.x,q.y,q.sz||2,q.sz||2);
+  });
+  ctx.globalAlpha=1;
+
+  dHUD();
+
+  if(flashT>0){
+    ctx.fillStyle=`rgba(255,255,255,${flashT/45*0.55})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  if(state==='DONE'&&doneWait<110){
+    ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=C.textBright; ctx.font='bold 26px "Courier New"';
+    ctx.textAlign='center';
+    ctx.fillText('TARGET ELIMINATED',W/2,H/2-18);
+    ctx.fillStyle=C.textDim; ctx.font='12px "Courier New"';
+    const ns={hitler:'Hitler',himmler:'Himmler',heydrich:'Heydrich',goebbels:'Goebbels'};
+    const n=ns[LEVELS[lvl].target];
+    if(n) ctx.fillText(n+' is dead.',W/2,H/2+18);
+    ctx.textAlign='left';
+  }
+
+  if(state==='DEAD'){
+    ctx.fillStyle='rgba(80,0,0,0.45)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=C.red; ctx.font='bold 21px "Courier New"';
+    ctx.textAlign='center';
+    ctx.fillText('AGENT ELIMINATED',W/2,H/2);
+    ctx.fillStyle=C.textDim; ctx.font='11px "Courier New"';
+    ctx.fillText('REDEPLOYING...',W/2,H/2+28);
+    ctx.textAlign='left';
+  }
+}
+
+function dBg(){
+  ctx.fillStyle=C.wall; ctx.fillRect(0,0,W,FLOOR);
+  const lo=-(camX*0.25)%64;
+  ctx.fillStyle=C.wallLine;
+  for(let x=lo;x<W;x+=64) ctx.fillRect(x,0,1,FLOOR);
+  ctx.fillStyle='#1c1408'; ctx.fillRect(0,0,W,28);
+  ctx.fillStyle='#2a1e0e'; ctx.fillRect(0,26,W,3);
+
+  // Banners (abstract red/white roundel — no swastika by design)
+  for(let wx=120;wx<LVL_W;wx+=230){
+    const sx=wx-camX; if(sx<-26||sx>W+6) continue;
+    ctx.fillStyle='#580000'; ctx.fillRect(sx,28,22,95);
+    ctx.fillStyle=C.banner;  ctx.fillRect(sx+2,28,18,93);
+    ctx.beginPath(); ctx.arc(sx+11,76,8,0,Math.PI*2);
+    ctx.fillStyle='#cc0000'; ctx.fill();
+    ctx.beginPath(); ctx.arc(sx+11,76,5,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(sx+11,76,3,0,Math.PI*2);
+    ctx.fillStyle='#cc0000'; ctx.fill();
+  }
+
+  for(let wx=310;wx<LVL_W;wx+=360){
+    const sx=wx-camX; if(sx<-60||sx>W+10) continue;
+    ctx.fillStyle='#05060e'; ctx.fillRect(sx,38,52,62);
+    ctx.fillStyle='#08091a'; ctx.fillRect(sx+2,40,48,58);
+    ctx.fillStyle='#0e0f22'; ctx.fillRect(sx+24,40,2,58);
+    ctx.fillRect(sx+2,68,48,2);
+  }
+}
+
+function dFloor(){
+  ctx.fillStyle=C.floorBody; ctx.fillRect(0,FLOOR,W,H-FLOOR);
+  ctx.fillStyle=C.floorTop;  ctx.fillRect(0,FLOOR,W,3);
+  const fo=-(camX%42);
+  ctx.fillStyle=C.floorTile;
+  for(let x=fo;x<W;x+=42) ctx.fillRect(x,FLOOR,1,H-FLOOR);
+  ctx.fillRect(0,FLOOR+22,W,1);
+}
+
+function dPlats(){
+  for(const [px,py,pw] of PLATS){
+    const sx=px-camX; if(sx+pw<0||sx>W) continue;
+    ctx.fillStyle='#4a3010'; ctx.fillRect(sx,py,pw,16);
+    ctx.fillStyle='#8a5c1a'; ctx.fillRect(sx,py,pw,3);
+    ctx.fillStyle='#2a1a08'; ctx.fillRect(sx,py+13,pw,3);
+  }
+}
+
+function dEnemies(){
+  for(const e of enemies){
+    const sx=e.x-camX; if(sx<-34||sx>W+34) continue;
+    if(e.type==='g') sprGuard(sx,e.y,e.wf||0,e.dir);
+    else sprDog(sx,e.y,e.dir,e.charging);
+  }
+}
+
+function dBullets(){
+  for(const b of bullets){
+    const sx=b.x-camX; if(sx<-12||sx>W+12) continue;
+    ctx.fillStyle=C.bullet; ctx.fillRect(sx,b.y,8,3);
+    ctx.fillStyle='rgba(255,230,40,0.35)'; ctx.fillRect(sx-b.vx*2.5,b.y-1,10,5);
+  }
+}
+
+function dTargetObj(){
+  const sx=TARGET_X-camX; if(sx<-34||sx>W+34) return;
+  const pulse=Math.sin(frame*0.09)*0.5+0.5;
+  ctx.strokeStyle=`rgba(255,${Math.floor(40+pulse*50)},${Math.floor(40*pulse)},${0.55+pulse*0.45})`;
+  ctx.lineWidth=1;
+  ctx.strokeRect(sx-3,FLOOR-37,28,36);
+  sprTarget(sx,FLOOR-35,LEVELS[lvl].target);
+  ctx.fillStyle=`rgba(200,170,80,${0.45+pulse*0.55})`;
+  ctx.font='9px "Courier New"';
+  ctx.textAlign='center';
+  ctx.fillText(TARGET_NAMES[LEVELS[lvl].target],sx+11,FLOOR-40);
+  ctx.textAlign='left';
+}
+
+function dHUD(){
+  ctx.fillStyle='rgba(0,0,0,0.62)'; ctx.fillRect(0,0,W,22);
+  ctx.fillStyle='#0e2808'; ctx.fillRect(0,21,W,1);
+  ctx.font='10px "Courier New"';
+  ctx.fillStyle=C.textDim;
+  ctx.fillText(`OP ${lvl+1}/5`,10,14);
+  ctx.fillStyle=C.ui; ctx.textAlign='center';
+  ctx.fillText(`TARGET: ${TARGET_NAMES[LEVELS[lvl].target]}`,W/2,14);
+  const tc=timerSecs<=8?(Math.floor(frame/8)%2===0?C.red:'#ff8888'):C.text;
+  ctx.fillStyle=tc; ctx.textAlign='right';
+  ctx.fillText(`${timerSecs}s`,W-10,14);
+
+  const prog=Math.min(1,p.x/(TARGET_X));
+  ctx.fillStyle='#0e1e08'; ctx.fillRect(W/2-90,H-16,180,7);
+  ctx.fillStyle=C.playerDk; ctx.fillRect(W/2-90,H-16,prog*180,7);
+  ctx.fillStyle='#1a3010'; ctx.fillRect(W/2-90,H-16,180,1);
+  ctx.font='8px "Courier New"';
+  ctx.fillStyle=C.textDim;
+  ctx.textAlign='left';
+  ctx.fillText('TARGET',W/2+96,H-10);
+
+  // HP display
+  ctx.font='13px "Courier New"';
+  for(let i=0;i<MAX_HP;i++){
+    ctx.fillStyle = i<(p.hp||0) ? '#dd2233' : '#2a1018';
+    ctx.fillText('♥', 10+i*18, H-8);
+  }
+  ctx.textAlign='left';
+}
+
+// ── FINAL SCREEN ──────────────────────────────────────────────────────────
+function dFinal(){
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  const prog=Math.min(1,finalT/240);
+  ctx.fillStyle=`rgba(18,0,0,${prog*0.88})`; ctx.fillRect(0,0,W,H);
+
+  const show=Math.min(FINAL.length,Math.floor(finalT/6));
+  ctx.textAlign='center'; let ty=62;
+  for(let i=0;i<show;i++){
+    const ln=FINAL[i];
+    if(ln===''){ty+=12;continue;}
+    if(ln==='.'||ln==='..'||ln==='...') ctx.fillStyle='#1e3018';
+    else if(i<2) ctx.fillStyle='#ffffff';
+    else ctx.fillStyle=C.text;
+    ctx.font='15px "Courier New"';
+    ctx.fillText(ln,W/2,ty); ty+=26;
+  }
+  if(finalDone){
+    ctx.fillStyle=C.textDim; ctx.font='10px "Courier New"';
+    ctx.fillText('TEMPORAL INTELLIGENCE DIRECTORATE',W/2,H-48);
+    ctx.fillText('SIMULATION COMPLETE',W/2,H-32);
+    if(Math.floor(frame/28)%2===0){
+      ctx.fillStyle='#334a2a'; ctx.fillText('[ CLICK TO RETURN ]',W/2,H-14);
+    }
+  }
+  ctx.textAlign='left';
+}
+
+// ─── LOOP ─────────────────────────────────────────────────────────────────────
+function loop(){
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
