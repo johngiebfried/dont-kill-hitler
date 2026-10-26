@@ -4,7 +4,7 @@ A scrolling essay on game-based learning, with two playable games and a debrief.
 
 ```
 index.html              The essay: the question → why this topic → two comics, two stories → four questions → play → debrief → theory
-assets/                 Comics and cover from the class source packet (see credits in the essay footer). doubt-creeps-in-vertical.jpg is a stand-in for Rowntree's "#21 Obersalzberg" until the Tapas file arrives
+assets/                 Comics and cover from the class source packet (see credits in the essay footer). doubt-creeps-in-vertical.jpg is a vertical read of Rowntree's "#21 Obersalzberg"
 platformer/index.html   The platformer, single self-contained file (built from index.src.html)
 card-game/index.html    Mission Dossiers walkthrough (built from index.src.html + data/cards.json + tools/ce_mapdata.json)
 card-game/data/cards.json   Canonical card text (approved copy; edit only with John's approval)
@@ -55,3 +55,9 @@ To change card text: edit `card-game/data/cards.json`, then run `python3 tools/i
 **Card data changelog.** October 2026: duplicate names split for the face-up draft (John approved the split; the names are mine and need his OK). Card 2 CRADLE → FOUNDLING, card 3 CRADLE → LODGER, card 13 STILL LIFE → BUENOS AIRES, card 14 STILL LIFE → COMMISSION. Cards 1 and 12 keep their names. A new `series` field keeps the family on all six. No mission, complication, or variant text changed.
 
 Not built yet: the Table Host mode for running a real class (pass-and-play, undo), print pages for a face-up deck, phone ballots. The spec for those is in `docs/02_CARD_GAME_SPEC.md`.
+
+## License
+
+Text, cards, and code: CC BY-NC 4.0, John Giebfried. Comics, cover, and quoted excerpts: all rights with their authors and creators. See `LICENSE`.
+
+Live site (GitHub Pages): https://johngiebfried.github.io/dont-kill-hitler/
