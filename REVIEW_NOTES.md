@@ -2,7 +2,7 @@
 
 ## Decide or supply before sharing publicly
 
-1. **"Doubt creeps in": send the Tapas file and the credit.** You found the source (tapas.io/episode/15370) and chose the vertical read. This environment can't reach tapas.io, so the page currently shows a stand-in: the seven panels of our earlier copy, cut apart and stacked top to bottom at double size (`assets/doubt-creeps-in-vertical.jpg`). It's softer than the original will be. Save the Tapas image under that same filename and the page picks it up. I also need the comic's title as Tapas gives it and the creator's name; the page and footer say only "Webcomic on Tapas" with the link for now.
+1. **Rowntree, "#21 Obersalzberg" (Viruscomics, Sep 7, 2013): send the Tapas image.** Credit is now in the page and footer. This environment can't reach tapas.io, so the vertical read is still a stand-in built from our earlier copy (`assets/doubt-creeps-in-vertical.jpg`); save the Tapas image under that filename to replace it. Note the title: Obersalzberg is the mountain house, not the Chancellery, so the "Into the platformer" line now says I moved the setting.
 2. **Insignia in that comic.** It shows armbands and a salute. Since you chose to keep it, I reworded the first rule to "No swastikas, SS runes, or other insignia in anything I made," and the caption says the armbands and salute appear as drawn in the original.
 3. **Image rights.** xkcd is CC BY-NC 2.5, so it's fine with credit. The Tapas comic and the *Weird Tales* cover are used for teaching and commentary. That's reasonable for a private portfolio link; check before posting widely, and ask the Tapas creator if the page goes public.
 4. **The essay is written in your voice.** It's a draft. I took phrases from your notes and Moodle posts where they existed ("an illustrated lecture with jumping in it," "productive argumentative failure," the closing line, "students will feel it before they can articulate it"). Everything else is mine. Rewrite freely.
@@ -35,7 +35,7 @@
 - **Title card question:** "If you could go back in time and change one thing about the past, what would you do?"
 - **"Exactly one point of overlap" became "The safest bet was a man with a very famous mustache."** Your co-teacher appears as "my co-teacher in Tel Aviv." The footer still credits Dr. Liberles by name, as before; say if that should go too.
 - **Sources:** xkcd comes first, then "Doubt creeps in." I put xkcd first because it answers the title question directly ("everyone agrees") and the guards' strip is what happens when everyone acts on it. Swap them if you prefer your order. Then *Making History* and "Wikihistory," then Farley as a short "older than I thought" note with the cover, no plot. Cut: SMBC, the NYT poll, Farley's plot and quotes.
-- **What each source became** now pairs cleanly: "Doubt creeps in" and Fry → the platformer; xkcd and "Wikihistory" → the card game, with the Directorate shared. Fry's line now says it is the platformer's engine.
+- **What each source became** now pairs cleanly: Rowntree's "Obersalzberg" and Fry → the platformer; xkcd and "Wikihistory" → the card game, with the Directorate shared. Fry's line now says it is the platformer's engine.
 - **Four questions** shrank to four short cards. The Farley quotes in questions three and four are gone. The question-to-answer table moved into the debrief, after play.
 - **Constraints** moved from the two-machines section into section 01, where the decision is made.
 - **Footer:** "Summer 2026" became "summer semester 2026 (March to June)."

@@ -4,7 +4,7 @@ A scrolling essay on game-based learning, with two playable games and a debrief.
 
 ```
 index.html              The essay: the question → why this topic → two comics, two stories → four questions → play → debrief → theory
-assets/                 Comics and cover from the class source packet (see credits in the essay footer). doubt-creeps-in-vertical.jpg is a stand-in until the Tapas file arrives
+assets/                 Comics and cover from the class source packet (see credits in the essay footer). doubt-creeps-in-vertical.jpg is a stand-in for Rowntree's "#21 Obersalzberg" until the Tapas file arrives
 platformer/index.html   The platformer, single self-contained file (built from index.src.html)
 card-game/index.html    Mission Dossiers walkthrough (built from index.src.html + data/cards.json + tools/ce_mapdata.json)
 card-game/data/cards.json   Canonical card text (approved copy; edit only with John's approval)
